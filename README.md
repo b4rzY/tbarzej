@@ -34,7 +34,7 @@ The included Vercel configuration uses `npm run build`, output directory `dist`,
 
 The portfolio distinguishes product ideas, requirements, design direction and iteration from AI-assisted implementation. The technology list describes tools used across projects, not proficiency scores or a claim that every line was written independently. Prototype limitations are explicitly documented in the interface.
 
-The workspace visual is an original concept diagram. The cat-finding capture contains simulated data. Private source, client business information and personal contact details are not included.
+The workspace visual is an original concept diagram. The cat-finding capture contains simulated data. Private source and client business information are not included. The contact section publishes only the owner-approved email address. Email links open the visitor’s email application; the site does not submit messages or guarantee delivery.
 
 See `LICENSE-NOTES.md` for asset notices.
 
