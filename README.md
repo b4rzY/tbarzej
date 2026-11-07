@@ -37,3 +37,9 @@ The portfolio distinguishes product ideas, requirements, design direction and it
 The workspace visual is an original concept diagram. The cat-finding capture contains simulated data. Private source, client business information and personal contact details are not included.
 
 See `LICENSE-NOTES.md` for asset notices.
+
+## Workflow city and selected work
+
+The workflow city preserves the geometry, traffic and camera projection of the owner's existing city renderer. Nine public example roles replace the original workspace data. Cars, dots and light pulses are simulated animation, not live agent telemetry. The exhibit includes camera controls, role selection, EN/ES text, keyboard operation and reduced-motion support. Select Explore city before drag or pinch interaction; Finish exploring restores normal page gestures.
+
+The Ñami case links to the public meal-planning web app and shows a signed-out homepage capture. Its native iPhone app is still described as coming soon. The professional background includes the owner's current GOZO AI role and dates.
