@@ -19,7 +19,7 @@ function updateProject(id){
 }
 function setLanguage(next){
   if(!['en','es'].includes(next))return;language=next;const dictionary=next==='es'?copy.es:english;
-  document.documentElement.lang=next;document.title=next==='es'?'Tomas Barzelatto · Portafolio de desarrollo':'Tomas Barzelatto · Developer portfolio';
+  document.documentElement.lang=next;document.title=next==='es'?'Tomas Barzelatto | Desarrollador':'Tomas Barzelatto | Developer';
   document.querySelectorAll('[data-i18n],[data-i18n-html]').forEach(el=>{const key=el.dataset.i18n||el.dataset.i18nHtml;if(dictionary[key]!==undefined){el.innerHTML=dictionary[key];}});
   document.querySelectorAll('[data-language]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.language===next)));
   document.querySelector('.wordmark').setAttribute('aria-label',next==='es'?'Tomas Barzelatto, inicio':'Tomas Barzelatto home');
