@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.qa/
+Tomas-Portfolio-Review.html
+*.zip
