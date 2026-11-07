@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile,access,readdir} from 'node:fs/promises';
+const html=await readFile('src/index.html','utf8');
+const js=await readFile('src/app.js','utf8');
+const css=await readFile('src/styles.css','utf8');
+test('all local resources exist',async()=>{for(const m of html.matchAll(/(?:src|href)="([^"#][^"]*)"/g)){if(m[1].startsWith('data:'))continue;if(['https://github.com/b4rzY/tbarzej','https://cl.linkedin.com/in/tomas-barzelatto-19a070b6'].includes(m[1]))continue;assert.ok(!/^https?:/.test(m[1]),'unexpected remote resource');await access('src/'+m[1]);}});
+test('section links have targets',()=>{const ids=new Set([...html.matchAll(/id="([^"]+)"/g)].map(m=>m[1]));for(const m of html.matchAll(/href="#([^\"]+)"/g))assert.ok(ids.has(m[1]),'missing '+m[1]);});
+test('unique IDs',()=>{const ids=[...html.matchAll(/id="([^"]+)"/g)].map(m=>m[1]);assert.equal(ids.length,new Set(ids).size);});
+test('every translation key has Spanish copy',()=>{for(const m of html.matchAll(/data-i18n(?:-html)?="([^"]+)"/g))assert.ok(js.includes(m[1]+':'),m[1]);});
+test('public draft contains no excluded research or private details',()=>{for(const phrase of ['anti-cheat','game research','hacks','cheats','/workspace/','@gmail.com']){assert.ok(!(html+js).toLowerCase().includes(phrase),phrase);}});
+test('no network APIs, analytics, accounts or persistence',()=>{assert.doesNotMatch(js,/\b(fetch|WebSocket|XMLHttpRequest|localStorage|sessionStorage|indexedDB|getUserMedia)\s*[.(]/);assert.doesNotMatch(html,/<form\b/);});
+test('truthful prototype boundaries and AI contribution are visible',()=>{for(const phrase of ['AI-assisted','scripted','no live AirTag','not a tracker','AI-assisted engineering'])assert.ok(html.toLowerCase().includes(phrase.toLowerCase()),phrase);});
+test('reduced motion and keyboard tabs supported',()=>{assert.ok(css.includes('prefers-reduced-motion:reduce'));assert.ok(js.includes("event.key==='ArrowRight'"));assert.ok(js.includes("event.key==='Home'"));assert.ok(html.includes('role="tabpanel"'));});
+test('generated artifact is self-contained',async()=>{const bundle=await readFile('Tomas-Portfolio-Review.html','utf8');assert.doesNotMatch(bundle,/(?:src|href)="(?:styles\.css|app\.js|assets\/)/);assert.ok(bundle.includes('data:image/png;base64,'));assert.ok(bundle.includes('data:font/ttf;base64,'));});
+test('distribution contains no removed private-labeled screenshot',async()=>{const assets=await readdir('dist/assets');assert.ok(!assets.includes('workspace-prototype.png'));});
