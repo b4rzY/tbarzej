@@ -1,6 +1,7 @@
 'use strict';
 const copy = {
   es: {
+    cosmosHint:'Mueve el cursor. Curva el espacio.',cosmosPause:'Pausar estrellas',
     navContact:'Contacto',currentRole:'Desarrollador de software y web en GOZO AI',contactTitle:'Hablemos de tu<br>próximo proyecto.',contactBody:'Si tienes una oportunidad de trabajo o un proyecto que quieras conversar, escríbeme directamente.',emailMe:'Escríbeme',contactNote:'Abre tu app de correo. También puedes copiar la dirección de arriba.',cityProjectTitle:'Ciudad interactiva del portafolio',cityProjectKind:'Experiencia en el navegador · Código público',cityProjectLede:'Una interfaz funcional que puedes explorar e inspeccionar.',cityProjectBody:'Una ciudad nocturna renderizada en el navegador, con controles para orbitar, desplazar y acercar, edificios seleccionables y tráfico simulado. Los controles de teclado, la exploración táctil y el soporte de movimiento reducido permiten usarla sin depender del mouse.',cityProjectContribution:'Definí la dirección visual, los requisitos de interacción y los comentarios iterativos. La implementación y la preparación de pruebas cuentan con asistencia de IA; el código público permite inspeccionar ese trabajo.',cityProjectTests:'Las pruebas automatizadas cubren los límites de la cámara, los controles de teclado, los gestos táctiles, el movimiento reducido y las pausas cuando la escena queda oculta. Los roles del flujo son ilustrativos, no telemetría de agentes en vivo.',cityProjectExplore:'Explorar la ciudad',cityProjectSource:'Leer la implementación',cityProjectTestLink:'Inspeccionar las pruebas',
     namiKind:'Planificación de comidas para Chile · App web',namiTagPlan:'Planificación semanal',namiTagRecipes:'Recetas',namiTagList:'Listas de compras',namiLede:'Una semana de comidas pensada para la vida diaria.',namiBody:'Una app web de planificación de comidas para Chile que reúne menús semanales, recetas y listas de compras organizadas en una experiencia diseñada primero para teléfonos.',namiContribution:'Desarrollada con asistencia de IA, con mi aporte centrado en la dirección del producto, los requisitos y la mejora iterativa de la experiencia.',namiVisit:'Explorar Ñami',namiDecision:'Unir ideas de comidas, planificación semanal y lista de compras en un solo flujo, cuidando las porciones, preferencias, básicos de despensa y navegación desde el teléfono.',namiBoundary:'El proyecto enlazado es una app web. Su app nativa para iPhone figura como próximamente. No se presentan el escaneo del refrigerador ni las compras como integraciones verificadas; los precios son estimaciones.',namiCaption:'App web pública · Interfaz en español',
 
@@ -36,6 +37,8 @@ function setLanguage(next){
   updateProject(activeProject);
   renderCoreControls();
   workflowCity?.setLanguage(next);
+  window.portfolioSoundtrack?.setLanguage(next);
+  renderCosmosControls();
   document.querySelector('.nami-visual a').setAttribute('aria-label',next==='es'?'Abrir la app web de planificación de comidas Ñami':'Open the Ñami meal-planning web app');
   document.querySelector('.nami-visual img').alt=next==='es'?'Página pública de Ñami con descubrimiento de recetas, planificación semanal y un plato preparado.':'Ñami public homepage with recipe discovery, weekly planning navigation and a prepared meal.';
   document.querySelector('.city-camera-controls').setAttribute('aria-label',next==='es'?'Controles de cámara de la ciudad':'City camera controls');
@@ -80,3 +83,13 @@ document.getElementById('core-canvas').addEventListener('keydown',event=>{if(!co
 renderCoreControls();
 
 const workflowCity=window.initWorkflowCity?.(document.querySelector('[data-workflow-city]'));
+
+function renderCosmosControls(){
+ const motion=window.portfolioCosmos?.getState().motion??false;
+ const control=document.getElementById('cosmos-motion');
+ control.textContent=language==='es'?(motion?'Pausar estrellas':'Animar estrellas'):(motion?'Pause stars':'Animate stars');
+ control.setAttribute('aria-pressed',String(motion));
+}
+window.addEventListener('cosmosstatechange',renderCosmosControls);
+document.getElementById('cosmos-motion').addEventListener('click',()=>{window.portfolioCosmos?.setMotion(!window.portfolioCosmos.getState().motion);renderCosmosControls();});
+renderCosmosControls();

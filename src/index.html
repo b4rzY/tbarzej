@@ -21,12 +21,13 @@
 <meta name="twitter:description" content="Reverse engineering, programming and useful digital experiences. Explore selected work and the thinking behind it.">
 <meta name="twitter:image" content="https://barzelatto.dev/assets/share-card-v1.jpg">
 <meta name="twitter:image:alt" content="Tomas's portfolio: Understand the system. Build the experience. Titanium and glass layers on a light background.">
-<meta name="theme-color" content="#1644bc">
+<meta name="theme-color" content="#050914">
 <title>Tomas Barzelatto | Developer</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231644bc'/%3E%3Cpath d='M25 29H75V42H57V76H43V42H25Z' fill='white'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="styles.css"><script src="engine.js" defer></script><script src="city.js" defer></script><script src="app.js" defer></script>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<div id="cosmos" aria-hidden="true"><canvas id="galaxy-canvas"></canvas><canvas id="mesh-canvas"></canvas><div class="cosmos-scrim"></div></div>
 <a class="skip" href="#work" data-i18n="skip">Skip to work</a>
 <header class="masthead wrap">
 <a href="#top" class="wordmark" aria-label="Tomas Barzelatto home">tomas<span class="wordmark-dot">.</span></a>
@@ -35,10 +36,10 @@
 </header>
 <main id="top">
 <section class="opening" aria-labelledby="intro-title">
-<div class="wrap intro-line"><span>Tomas Barzelatto</span><span data-i18n="role">Reverse engineering · Programming · Product</span></div>
-<div class="wrap intro-main">
+
+<div class="wrap intro-main"><div class="cosmos-caption"><span data-i18n="cosmosHint">Move your cursor. Bend the fabric.</span><button type="button" id="cosmos-motion" aria-pressed="true" data-i18n="cosmosPause">Pause stars</button></div>
 <div class="hero-words"><h1 id="intro-title" data-i18n-html="headline">Understand <br>the system. <br><em>Build the <br>experience.</em></h1>
-<div class="intro-copy"><p class="current-role" data-i18n="currentRole">Software Developer &amp; Web Developer at GOZO AI</p><p data-i18n="intro">I explore how software behaves and turn complex ideas into usable interfaces. I guide product direction, requirements and UX iteration, with AI-assisted implementation.</p><a class="text-link light" href="#work"><span data-i18n="explore">Explore selected work</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a><a class="text-link hero-contact" href="#contact" data-i18n="navContact">Contact</a></div></div><div class="core-experience">
+<div class="intro-copy"><p class="hero-discipline" data-i18n="role">Reverse engineering · Programming · Product</p><p class="current-role" data-i18n="currentRole">Software Developer &amp; Web Developer at GOZO AI</p><p data-i18n="intro">I explore how software behaves and turn complex ideas into usable interfaces. I guide product direction, requirements and UX iteration, with AI-assisted implementation.</p><a class="text-link light" href="#work"><span data-i18n="explore">Explore selected work</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a><a class="text-link hero-contact" href="#contact" data-i18n="navContact">Contact</a></div></div><div class="core-experience">
 <div id="core-stage" class="core-stage" data-interaction="false" aria-label="Interactive 3D portfolio study">
 <img class="core-fallback" src="assets/hero-render.png" alt="Decorative titanium and glass layered concept, shown when live 3D is unavailable." width="1254" height="1254">
 <canvas id="core-canvas" tabindex="0" aria-label="3D layered core. Use arrow keys to rotate, plus or minus to zoom, Home to reset. Select layers using the buttons below."></canvas>
@@ -92,4 +93,20 @@
 </main>
 <footer class="footer wrap"><span>Tomas Barzelatto</span><a href="#contact" data-i18n="navContact">Contact</a><span data-i18n="footerDraft">Independent work · AI-assisted engineering</span><span data-i18n="footerPrivacy">No analytics. No tracking.</span><a href="https://github.com/b4rzY/tbarzej" target="_blank" rel="noopener noreferrer" data-i18n="footerSource">Portfolio source</a></footer>
 <noscript><p class="wrap noscript-note">This page works without JavaScript. Language switching, the live 3D scene and featured-project selection require JavaScript. The portfolio content and case studies remain available.</p></noscript>
-</body></html>
+<aside class="soundtrack" id="soundtrack" aria-label="Soundtrack player">
+ <div class="soundtrack-bar">
+  <button type="button" class="soundtrack-drag" id="soundtrack-drag" aria-label="Move soundtrack player. Use arrow keys to move, Home to reset." title="Drag to move"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01"/></svg></button>
+  <button type="button" id="soundtrack-play" class="soundtrack-play" aria-label="Play soundtrack" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path class="play-path" d="m9 5 11 7-11 7Z"/><path class="pause-path" d="M8 5v14M16 5v14"/></svg></button>
+  <button type="button" id="soundtrack-settings" class="soundtrack-settings" aria-expanded="false" aria-controls="soundtrack-panel"><span id="soundtrack-title">Soundtrack</span><span id="soundtrack-status">Add your audio</span></button>
+  <span class="soundtrack-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+ </div>
+ <div class="soundtrack-panel" id="soundtrack-panel" hidden>
+  <p id="soundtrack-explainer">Choose a licensed audio file to play on a loop. It stays in this browser tab.</p>
+  <label hidden class="audio-file-label" for="soundtrack-file" id="soundtrack-file-label">Choose audio file</label><input hidden type="file" id="soundtrack-file" accept="audio/*" aria-label="Choose audio file">
+  <div class="volume-row"><label for="soundtrack-volume" id="soundtrack-volume-label">Volume</label><input type="range" id="soundtrack-volume" min="0" max="1" step="0.05" value="0.35"></div>
+  <button type="button" id="soundtrack-reset">Reset position</button><button type="button" id="soundtrack-close">Close</button>
+ </div>
+ <span class="scene-accessible-label" id="soundtrack-announcement" role="status" aria-live="polite"></span>
+ <audio id="soundtrack-audio" src="assets/interstellar-theme.mp3" loop preload="none"></audio>
+</aside>
+<script src="cosmos.js" defer></script><script src="soundtrack.js" defer></script><script src="engine.js" defer></script><script src="city.js" defer></script><script src="app.js" defer></script></body></html>

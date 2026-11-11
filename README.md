@@ -43,3 +43,9 @@ See `LICENSE-NOTES.md` for asset notices.
 The workflow city preserves the geometry, traffic and camera projection of the owner's existing city renderer. Nine public example roles replace the original workspace data. Cars, dots and light pulses are simulated animation, not live agent telemetry. The exhibit includes camera controls, role selection, EN/ES text, keyboard operation and reduced-motion support. Select Explore city before drag or pinch interaction; Finish exploring restores normal page gestures.
 
 The Ñami case links to the public meal-planning web app and shows a signed-out homepage capture. Its native iPhone app is still described as coming soon. The professional background includes the owner's current GOZO AI role and dates.
+
+## Galaxy and soundtrack
+
+The procedural galaxy runs on desktop and mobile. Mouse movement and passive touch gestures reveal the mesh without blocking ordinary page scrolling. Reduced-motion preferences disable animation until explicitly enabled.
+
+The owner-supplied soundtrack is local, loops after explicit Play, and can be paused or adjusted. No autoplay or external audio request is used.
