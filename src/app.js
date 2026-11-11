@@ -38,7 +38,6 @@ function setLanguage(next){
   renderCoreControls();
   workflowCity?.setLanguage(next);
   window.portfolioSoundtrack?.setLanguage(next);
-  renderCosmosControls();
   document.querySelector('.nami-visual a').setAttribute('aria-label',next==='es'?'Abrir la app web de planificación de comidas Ñami':'Open the Ñami meal-planning web app');
   document.querySelector('.nami-visual img').alt=next==='es'?'Página pública de Ñami con descubrimiento de recetas, planificación semanal y un plato preparado.':'Ñami public homepage with recipe discovery, weekly planning navigation and a prepared meal.';
   document.querySelector('.city-camera-controls').setAttribute('aria-label',next==='es'?'Controles de cámara de la ciudad':'City camera controls');
@@ -83,13 +82,3 @@ document.getElementById('core-canvas').addEventListener('keydown',event=>{if(!co
 renderCoreControls();
 
 const workflowCity=window.initWorkflowCity?.(document.querySelector('[data-workflow-city]'));
-
-function renderCosmosControls(){
- const motion=window.portfolioCosmos?.getState().motion??false;
- const control=document.getElementById('cosmos-motion');
- control.textContent=language==='es'?(motion?'Pausar galaxia':'Animar galaxia'):(motion?'Pause galaxy':'Animate galaxy');
- control.setAttribute('aria-pressed',String(motion));
-}
-window.addEventListener('cosmosstatechange',renderCosmosControls);
-document.getElementById('cosmos-motion').addEventListener('click',()=>{window.portfolioCosmos?.setMotion(!window.portfolioCosmos.getState().motion);renderCosmosControls();});
-renderCosmosControls();

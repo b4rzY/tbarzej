@@ -52,9 +52,10 @@
       const x = random() * width, y = random() * height;
       const size = .25 + Math.pow(random(), 5) * 1.15;
       const alpha = .13 + random() * .56;
+      if (size > .75) { stars.push({ x, y, size, phase: random() * 6.28, speed: .7 + random() * 1.1 }); continue; }
       ctx.fillStyle = `rgba(${random() > .82 ? '255,215,183' : '185,207,246'},${alpha})`;
       ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI * 2); ctx.fill();
-      if (size > 1.05) stars.push({ x, y, size, phase: random() * 6.28, speed: .3 + random() * .6 });
+
     }
     // Project a logarithmic spiral disk onto an oblique galactic plane.
     const cx = width * .73, cy = height * .40;
@@ -146,8 +147,24 @@
   function drawMesh(time) {
     wire.clearRect(0, 0, width, height);
     for (const star of stars) {
-      const alpha = enabled ? .12 + (Math.sin(time * .001 * star.speed + star.phase) + 1) * .12 : .15;
+      const shimmer = (Math.sin(time * .001 * star.speed + star.phase) + 1) / 2;
+      const alpha = enabled ? .14 + shimmer * shimmer * .86 : .65;
       wire.fillStyle = `rgba(198,225,255,${alpha})`; wire.beginPath(); wire.arc(star.x, star.y, star.size, 0, Math.PI * 2); wire.fill();
+    }
+    // A restrained shooting star crosses the outer sky about once every 18 seconds.
+    const cometPhase = (time / 1000 + 12) % 18;
+    if (enabled && cometPhase < 1.8) {
+      const progress = cometPhase / 1.8;
+      const x = width * (.92 - progress * .46), y = height * (.12 + progress * .29);
+      const tailX = x + width * .12, tailY = y - height * .075;
+      const fade = Math.sin(progress * Math.PI);
+      const trail = wire.createLinearGradient(x, y, tailX, tailY);
+      trail.addColorStop(0, `rgba(213,232,255,${fade * .8})`);
+      trail.addColorStop(1, 'rgba(145,192,255,0)');
+      wire.strokeStyle = trail; wire.lineWidth = 1.3;
+      wire.beginPath(); wire.moveTo(x, y); wire.lineTo(tailX, tailY); wire.stroke();
+      wire.fillStyle = `rgba(236,246,255,${fade})`;
+      wire.beginPath(); wire.arc(x, y, 1.6, 0, Math.PI * 2); wire.fill();
     }
     if (!enabled || pointer.strength < .005) return;
     const points = nodes.map(n => deformPoint(n.x, n.y, pointer, 360));
@@ -170,12 +187,9 @@
     if (time - lastFrame < 1000 / 30) return;
     const elapsed = lastFrame ? Math.min(time - lastFrame, 80) : 0;
     lastFrame = time; motionTime += elapsed;
-    // Animate the pre-rendered galaxy with compositor transforms, not costly redraws.
-    const phase = motionTime / 5000;
-    canvas.style.transform = `scale(1.28) translate(${Math.sin(phase) * 6}%, ${Math.cos(phase * .7) * 4}%) rotate(${Math.sin(phase * .6) * 4}deg)`;
     pointer.x += (pointer.targetX - pointer.x) * .14; pointer.y += (pointer.targetY - pointer.y) * .14;
     pointer.strength += (pointer.targetStrength - pointer.strength) * .13;
-    drawMesh(time);
+    drawMesh(motionTime);
   }
   function start() { if (!frame && enabled && !document.hidden && !destroyed) frame = requestAnimationFrame(tick); }
   function resize() {
