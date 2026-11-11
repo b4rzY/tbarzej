@@ -71,13 +71,12 @@ body{background:var(--paper);isolation:isolate}button,input{color:inherit}::sele
 
 #soundtrack-file[hidden],#soundtrack-file-label[hidden]{display:none}
 
-/* Compact controls flush with the bottom edge on desktop and phones. */
-.soundtrack{left:12px;bottom:0;width:244px;border-radius:10px 10px 0 0;box-shadow:0 -2px 18px #0004}
-.soundtrack-bar{height:48px;padding:2px 8px;gap:6px}
-.soundtrack-drag{display:none}.soundtrack-play{width:44px;min-width:44px;border-radius:8px}
-.soundtrack-wave{display:none}.soundtrack-settings span{max-width:174px}
-.soundtrack{padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(max-width:760px){.soundtrack{left:0;bottom:0;width:100%;border-radius:0}.soundtrack-settings span{max-width:calc(100vw - 80px)}}
-
-#galaxy-canvas{transform:scale(1.14);transform-origin:73% 40%;will-change:transform}#cosmos{contain:strict}html{overflow-x:clip}
+#galaxy-canvas{transform:scale(1.28) translate(0,4%);transform-origin:73% 40%;will-change:transform}#cosmos{contain:strict}html{overflow-x:clip}
 @media(prefers-reduced-motion:reduce){#galaxy-canvas{will-change:auto}}
+
+/* Original player treatment, now after the footer in normal document flow. */
+.soundtrack{position:relative;inset:auto;width:264px;max-width:calc(100% - 48px);margin:28px auto 48px;border-radius:14px;max-height:none;overflow:visible}
+.soundtrack-bar{position:relative;height:64px;padding:8px 10px;gap:8px;border-radius:14px}
+.soundtrack-drag,#soundtrack-reset{display:none}.soundtrack-play{width:44px;min-width:44px}
+.footer{padding-bottom:25px}
+@media(max-width:760px){.soundtrack{position:relative;inset:auto;width:264px;margin:24px auto 36px}.footer{padding-bottom:28px}}

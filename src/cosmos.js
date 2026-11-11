@@ -171,8 +171,8 @@
     const elapsed = lastFrame ? Math.min(time - lastFrame, 80) : 0;
     lastFrame = time; motionTime += elapsed;
     // Animate the pre-rendered galaxy with compositor transforms, not costly redraws.
-    const phase = motionTime / 9000;
-    canvas.style.transform = `scale(1.14) translate(${Math.sin(phase) * 2.3}%, ${Math.cos(phase * .7) * 1.7}%) rotate(${Math.sin(phase * .6) * 1.4}deg)`;
+    const phase = motionTime / 5000;
+    canvas.style.transform = `scale(1.28) translate(${Math.sin(phase) * 6}%, ${Math.cos(phase * .7) * 4}%) rotate(${Math.sin(phase * .6) * 4}deg)`;
     pointer.x += (pointer.targetX - pointer.x) * .14; pointer.y += (pointer.targetY - pointer.y) * .14;
     pointer.strength += (pointer.targetStrength - pointer.strength) * .13;
     drawMesh(time);
