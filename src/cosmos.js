@@ -25,7 +25,7 @@
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const coarse = window.matchMedia('(pointer: coarse)');
   let width = 0, height = 0, dpr = 1, stars = [], nodes = [], edges = [];
-  let frame = 0, lastFrame = 0, resizeTimer = 0, destroyed = false;
+  let frame = 0, lastFrame = 0, resizeTimer = 0, destroyed = false, motionTime = 0;
   let enabled = !reduced.matches, explicitMotion = false;
   const pointer = { x: 0, y: 0, targetX: 0, targetY: 0, strength: 0, targetStrength: 0 };
   const getState = () => ({ motion: enabled, enabled, reducedMotion: reduced.matches, coarsePointer: coarse.matches, paused: document.hidden || !enabled, destroyed });
@@ -168,7 +168,11 @@
     if (destroyed || !enabled || document.hidden) { frame = 0; return; }
     frame = requestAnimationFrame(tick);
     if (time - lastFrame < 1000 / 30) return;
-    lastFrame = time;
+    const elapsed = lastFrame ? Math.min(time - lastFrame, 80) : 0;
+    lastFrame = time; motionTime += elapsed;
+    // Animate the pre-rendered galaxy with compositor transforms, not costly redraws.
+    const phase = motionTime / 9000;
+    canvas.style.transform = `scale(1.14) translate(${Math.sin(phase) * 2.3}%, ${Math.cos(phase * .7) * 1.7}%) rotate(${Math.sin(phase * .6) * 1.4}deg)`;
     pointer.x += (pointer.targetX - pointer.x) * .14; pointer.y += (pointer.targetY - pointer.y) * .14;
     pointer.strength += (pointer.targetStrength - pointer.strength) * .13;
     drawMesh(time);
@@ -176,14 +180,14 @@
   function start() { if (!frame && enabled && !document.hidden && !destroyed) frame = requestAnimationFrame(tick); }
   function resize() {
     if (destroyed) return;
-    width = window.innerWidth; height = window.innerHeight; dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    width = canvas.parentElement?.clientWidth || window.innerWidth; height = canvas.parentElement?.clientHeight || window.innerHeight; dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     for (const c of [canvas, mesh]) { c.width = Math.round(width * dpr); c.height = Math.round(height * dpr); c.style.width = `${width}px`; c.style.height = `${height}px`; }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); wire.setTransform(dpr, 0, 0, dpr, 0, 0);
     backdrop(); buildMesh(); drawMesh(0); start();
   }
   const onResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 180); };
   function onPointer(event) {
-    if (!enabled) return;
+    if (!enabled || event.pointerType === 'touch' || (window.visualViewport?.scale || 1) > 1.05) return;
     if (pointer.targetStrength === 0) { pointer.x = event.clientX; pointer.y = event.clientY; }
     pointer.targetX = event.clientX; pointer.targetY = event.clientY; pointer.targetStrength = 1;
   }
@@ -191,21 +195,23 @@
   function setMotion(value) {
     if (destroyed) return getState();
     enabled = Boolean(value); explicitMotion = true;
-    if (!enabled) { cancelAnimationFrame(frame); frame = 0; pointer.strength = 0; pointer.targetStrength = 0; drawMesh(0); } else start();
+    if (!enabled) { cancelAnimationFrame(frame); frame = 0; lastFrame = 0; pointer.strength = 0; pointer.targetStrength = 0; drawMesh(0); } else start();
     announce(); return getState();
   }
   function onPreference() { if (!explicitMotion) { enabled = !reduced.matches; if (!enabled) { cancelAnimationFrame(frame); frame = 0; drawMesh(0); } else start(); } announce(); }
   function onVisibility() { if (document.hidden) { cancelAnimationFrame(frame); frame = 0; } else start(); announce(); }
   function destroy() {
     destroyed = true; cancelAnimationFrame(frame); clearTimeout(resizeTimer);
+    window.visualViewport?.removeEventListener('resize', onLeave);
     window.removeEventListener('touchstart', onTouch); window.removeEventListener('touchmove', onTouch);
     window.removeEventListener('touchend', onTouchEnd); window.removeEventListener('touchcancel', onLeave);
     window.removeEventListener('resize', onResize); window.removeEventListener('pointermove', onPointer); window.removeEventListener('blur', onLeave);
     document.documentElement.removeEventListener('pointerleave', onLeave); document.removeEventListener('visibilitychange', onVisibility);
     reduced.removeEventListener('change', onPreference); coarse.removeEventListener('change', onPreference); announce();
   }
-  const onTouch = event => { const touch = event.touches[0]; if (touch) onPointer(touch); };
+  const onTouch = event => { if (event.touches.length !== 1 || (window.visualViewport?.scale || 1) > 1.05) { onLeave(); return; } const touch = event.touches[0]; if (touch) onPointer(touch); };
   const onTouchEnd = event => { if (!event.touches.length) onLeave(); };
+  window.visualViewport?.addEventListener('resize', onLeave, { passive: true });
   window.addEventListener('touchstart', onTouch, { passive: true });
   window.addEventListener('touchmove', onTouch, { passive: true });
   window.addEventListener('touchend', onTouchEnd, { passive: true });

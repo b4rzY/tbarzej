@@ -70,3 +70,14 @@ body{background:var(--paper);isolation:isolate}button,input{color:inherit}::sele
 #cosmos{z-index:0}body>header,body>main,body>footer{position:relative;z-index:1}
 
 #soundtrack-file[hidden],#soundtrack-file-label[hidden]{display:none}
+
+/* Compact controls flush with the bottom edge on desktop and phones. */
+.soundtrack{left:12px;bottom:0;width:244px;border-radius:10px 10px 0 0;box-shadow:0 -2px 18px #0004}
+.soundtrack-bar{height:48px;padding:2px 8px;gap:6px}
+.soundtrack-drag{display:none}.soundtrack-play{width:44px;min-width:44px;border-radius:8px}
+.soundtrack-wave{display:none}.soundtrack-settings span{max-width:174px}
+.soundtrack{padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(max-width:760px){.soundtrack{left:0;bottom:0;width:100%;border-radius:0}.soundtrack-settings span{max-width:calc(100vw - 80px)}}
+
+#galaxy-canvas{transform:scale(1.14);transform-origin:73% 40%;will-change:transform}#cosmos{contain:strict}html{overflow-x:clip}
+@media(prefers-reduced-motion:reduce){#galaxy-canvas{will-change:auto}}

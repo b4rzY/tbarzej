@@ -48,4 +48,6 @@ The Ñami case links to the public meal-planning web app and shows a signed-out 
 
 The procedural galaxy runs on desktop and mobile. Mouse movement and passive touch gestures reveal the mesh without blocking ordinary page scrolling. Reduced-motion preferences disable animation until explicitly enabled.
 
-The owner-supplied soundtrack is local, loops after explicit Play, and can be paused or adjusted. No autoplay or external audio request is used.
+The owner-supplied soundtrack is local, attempts audible looping autoplay once, and can be paused or adjusted. If browser policy blocks autoplay, an accessible Play control remains. No external audio request is used.
+
+The soundtrack cue starts at 1:38 in the supplied extended arrangement and repeats from that phrase when the track ends. This entrance was selected from tonal and loudness analysis of this file, not a claimed movie-scene timestamp.
