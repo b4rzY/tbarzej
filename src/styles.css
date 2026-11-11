@@ -138,3 +138,13 @@ h1 em{font-weight:400;color:#b8c6e2}
 
 /* Direct manipulation stays visible above the background readability overlay. */
 .cosmos-scrim{z-index:1}#interaction-canvas{z-index:2}
+
+/* Contact and control finishing pass: preserve the editorial layout. */
+.contact-actions .text-link:not(.back-top){padding:12px 22px;min-height:46px;gap:12px}
+.closing{align-items:start}.closing h2{grid-row:span 2}
+h1,h2,h3{text-wrap:balance}
+@media(max-width:760px){.closing h2{grid-row:auto}}
+@media(prefers-reduced-motion:no-preference){
+ .languages button,.soundtrack-toggle,.contact-actions .text-link{transition:background-color 160ms ease,color 160ms ease,transform 160ms ease}
+ .languages button:active,.soundtrack-toggle:active,.contact-actions .text-link:active{transform:scale(.97)}
+}

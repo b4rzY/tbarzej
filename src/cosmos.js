@@ -26,7 +26,7 @@
   if (!ctx || !wire || !grid) return;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const coarse = window.matchMedia('(pointer: coarse)');
-  let width = 0, height = 0, dpr = 1, stars = [], nodes = [], edges = [];
+  let width = 0, height = 0, dpr = 1, stars = [], nodes = [];
   let frame = 0, lastFrame = 0, resizeTimer = 0, destroyed = false, motionTime = 0;
   let enabled = !reduced.matches, explicitMotion = false;
   const pointer = { x: 0, y: 0, targetX: 0, targetY: 0, strength: 0, targetStrength: 0 };
@@ -123,27 +123,26 @@
     }
     ctx.globalCompositeOperation = 'source-over';
   }
+  // Original particle displacement field: bounded density, no texture or third-party code.
   function buildMesh() {
-    nodes = []; edges = [];
-    const spacing = width < 600 ? 90 : 112, rowHeight = spacing * .866;
-    const cols = Math.ceil(width / spacing) + 3, rows = Math.ceil(height / rowHeight) + 3;
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        nodes.push({ x: (col - 1) * spacing + (row % 2) * spacing / 2, y: (row - 1) * rowHeight });
-        const index = row * cols + col;
-        if (col) edges.push([index - 1, index]);
-        if (row) {
-          edges.push([index - cols, index]);
-          const diagonal = col + (row % 2 ? 1 : -1);
-          if (diagonal >= 0 && diagonal < cols) edges.push([(row - 1) * cols + diagonal, index]);
-        }
+    nodes = [];
+    const random = seeded(98171);
+    const spacing = Math.max(width < 600 ? 13 : 15, Math.sqrt(width * height / 6500));
+    for (let y = 0; y < height + spacing; y += spacing) {
+      for (let x = 0; x < width + spacing; x += spacing) {
+        nodes.push({ x: x + random() * 3, y: y + random() * 3, dx: 0, dy: 0 });
       }
     }
   }
   function drawMesh(time) {
     wire.clearRect(0, 0, width, height);
     grid.clearRect(0, 0, width, height);
-    for (const star of stars) {
+    for (const original of stars) {
+      const drift = enabled ? time * .001 : 0;
+      const depth = original.size * 1.8;
+      const star = { ...original,
+        x: (original.x + drift * depth * .8) % width,
+        y: (original.y + drift * depth * .3) % height };
       const shimmer = (Math.sin(time * .001 * star.speed + star.phase) + 1) / 2;
       const alpha = enabled ? .14 + shimmer * shimmer * .86 : .65;
       const pulse = enabled ? shimmer : .65;
@@ -176,21 +175,27 @@
       wire.fillStyle = `rgba(236,246,255,${fade})`;
       wire.beginPath(); wire.arc(x, y, 2, 0, Math.PI * 2); wire.fill();
     }
-    if (pointer.strength < .005) return;
-    const points = nodes.map(n => deformPoint(n.x, n.y, pointer, 420));
-    grid.lineWidth = 1;
-    for (const [a, b] of edges) {
-      const p = points[a], q = points[b], influence = (p.influence + q.influence) / 2;
-      if (influence < .006) continue;
-      grid.strokeStyle = `rgba(133,186,255,${(.10 + influence * .9) * pointer.strength})`;
-      grid.beginPath(); grid.moveTo(p.x, p.y); grid.lineTo(q.x, q.y); grid.stroke();
-    }
-    for (const p of points) {
-      if (p.influence < .08) continue;
-      grid.fillStyle = `rgba(192,224,255,${p.influence * .95 * pointer.strength})`;
-      grid.beginPath(); grid.arc(p.x, p.y, 1.1, 0, Math.PI * 2); grid.fill();
+    const radius = width < 600 ? 105 : 150;
+    for (const p of nodes) {
+      const dx = p.x - pointer.x, dy = p.y - pointer.y;
+      const distance = Math.hypot(dx, dy);
+      const influence = Math.max(0, 1 - distance / radius);
+      const force = influence * influence * pointer.strength;
+      const targetX = dx / Math.max(distance, 1) * force * 90;
+      const targetY = dy / Math.max(distance, 1) * force * 90;
+      // Direct feedback with no inertia when the visitor requests reduced motion.
+      const ease = enabled ? .22 : 1;
+      p.dx += (targetX - p.dx) * ease;
+      p.dy += (targetY - p.dy) * ease;
+      const displacement = Math.min(1, Math.hypot(p.dx, p.dy) / 28);
+      const vicinity = Math.max(0, 1 - distance / (radius * 1.8)) * pointer.strength;
+      const alpha = Math.max(vicinity * .32, displacement * .72);
+      if (alpha < .008) continue;
+      grid.fillStyle = `rgba(183,213,248,${alpha})`;
+      grid.beginPath(); grid.arc(p.x + p.dx, p.y + p.dy, .75 + displacement * .35, 0, Math.PI * 2); grid.fill();
     }
   }
+
   function tick(time) {
     if (destroyed || !enabled || document.hidden) { frame = 0; return; }
     frame = requestAnimationFrame(tick);
