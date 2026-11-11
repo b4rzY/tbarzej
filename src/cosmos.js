@@ -18,10 +18,12 @@
   }
   const canvas = document.getElementById('galaxy-canvas');
   const mesh = document.getElementById('mesh-canvas');
-  if (!canvas || !mesh) return;
+  const interaction = document.getElementById('interaction-canvas');
+  if (!canvas || !mesh || !interaction) return;
   const ctx = canvas.getContext('2d', { alpha: false });
   const wire = mesh.getContext('2d');
-  if (!ctx || !wire) return;
+  const grid = interaction.getContext('2d');
+  if (!ctx || !wire || !grid) return;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const coarse = window.matchMedia('(pointer: coarse)');
   let width = 0, height = 0, dpr = 1, stars = [], nodes = [], edges = [];
@@ -140,6 +142,7 @@
   }
   function drawMesh(time) {
     wire.clearRect(0, 0, width, height);
+    grid.clearRect(0, 0, width, height);
     for (const star of stars) {
       const shimmer = (Math.sin(time * .001 * star.speed + star.phase) + 1) / 2;
       const alpha = enabled ? .14 + shimmer * shimmer * .86 : .65;
@@ -173,19 +176,19 @@
       wire.fillStyle = `rgba(236,246,255,${fade})`;
       wire.beginPath(); wire.arc(x, y, 2, 0, Math.PI * 2); wire.fill();
     }
-    if (!enabled || pointer.strength < .005) return;
-    const points = nodes.map(n => deformPoint(n.x, n.y, pointer, 360));
-    wire.lineWidth = .65;
+    if (pointer.strength < .005) return;
+    const points = nodes.map(n => deformPoint(n.x, n.y, pointer, 420));
+    grid.lineWidth = 1;
     for (const [a, b] of edges) {
       const p = points[a], q = points[b], influence = (p.influence + q.influence) / 2;
       if (influence < .006) continue;
-      wire.strokeStyle = `rgba(133,186,255,${(.045 + influence * .46) * pointer.strength})`;
-      wire.beginPath(); wire.moveTo(p.x, p.y); wire.lineTo(q.x, q.y); wire.stroke();
+      grid.strokeStyle = `rgba(133,186,255,${(.10 + influence * .9) * pointer.strength})`;
+      grid.beginPath(); grid.moveTo(p.x, p.y); grid.lineTo(q.x, q.y); grid.stroke();
     }
     for (const p of points) {
       if (p.influence < .08) continue;
-      wire.fillStyle = `rgba(192,224,255,${p.influence * .7 * pointer.strength})`;
-      wire.beginPath(); wire.arc(p.x, p.y, 1.1, 0, Math.PI * 2); wire.fill();
+      grid.fillStyle = `rgba(192,224,255,${p.influence * .95 * pointer.strength})`;
+      grid.beginPath(); grid.arc(p.x, p.y, 1.1, 0, Math.PI * 2); grid.fill();
     }
   }
   function tick(time) {
@@ -202,17 +205,20 @@
   function resize() {
     if (destroyed) return;
     width = canvas.parentElement?.clientWidth || window.innerWidth; height = canvas.parentElement?.clientHeight || window.innerHeight; dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    for (const c of [canvas, mesh]) { c.width = Math.round(width * dpr); c.height = Math.round(height * dpr); c.style.width = `${width}px`; c.style.height = `${height}px`; }
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); wire.setTransform(dpr, 0, 0, dpr, 0, 0);
+    for (const c of [canvas, mesh, interaction]) { c.width = Math.round(width * dpr); c.height = Math.round(height * dpr); c.style.width = `${width}px`; c.style.height = `${height}px`; }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); wire.setTransform(dpr, 0, 0, dpr, 0, 0); grid.setTransform(dpr, 0, 0, dpr, 0, 0);
     backdrop(); buildMesh(); drawMesh(0); start();
   }
   const onResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 180); };
   function onPointer(event) {
-    if (!enabled || event.pointerType === 'touch' || (window.visualViewport?.scale || 1) > 1.05) return;
-    if (pointer.targetStrength === 0) { pointer.x = event.clientX; pointer.y = event.clientY; }
+    if (destroyed || event.pointerType === 'touch' || (window.visualViewport?.scale || 1) > 1.05) return;
+    if (pointer.targetStrength === 0) { pointer.x = event.clientX; pointer.y = event.clientY; pointer.strength = .65; }
     pointer.targetX = event.clientX; pointer.targetY = event.clientY; pointer.targetStrength = 1;
+    pointer.x = event.clientX; pointer.y = event.clientY;
+    if (!enabled) pointer.strength = 1;
+    drawMesh(motionTime);
   }
-  const onLeave = () => { pointer.targetStrength = 0; };
+  const onLeave = () => { pointer.targetStrength = 0; if (!enabled) { pointer.strength = 0; drawMesh(motionTime); } };
   function setMotion(value) {
     if (destroyed) return getState();
     enabled = Boolean(value); explicitMotion = true;

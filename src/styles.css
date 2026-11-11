@@ -135,3 +135,6 @@ h1 em{font-weight:400;color:#b8c6e2}
  .core-inspector p{font-size:15px;line-height:1.75}.core-inspector .text-link{font-size:13px}
 }
 @media(max-width:380px){:root{--space:20px}.masthead{height:auto;min-height:104px}.intro-copy .hero-contact{display:inline-flex;width:auto;margin:8px 0 0 6px}h1{font-size:43px}.intro-copy .text-link{padding-inline:13px;font-size:12px}.contact-address{font-size:18px}}
+
+/* Direct manipulation stays visible above the background readability overlay. */
+.cosmos-scrim{z-index:1}#interaction-canvas{z-index:2}
