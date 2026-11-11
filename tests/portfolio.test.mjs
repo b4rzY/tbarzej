@@ -26,11 +26,11 @@ test('social preview has one coherent set of metadata and public absolute URLs',
   assert.equal(meta('og:url'),'https://barzelatto.dev/');
   assert.equal(meta('og:type'),'website');
   assert.equal(meta('twitter:card'),'summary_large_image');
-  assert.equal(meta('og:image'),'https://barzelatto.dev/assets/share-card-v1.jpg');
+  assert.equal(meta('og:image'),'https://barzelatto.dev/assets/share-card-galaxy-v2.jpg');
   assert.equal(meta('twitter:image'),meta('og:image'));
   assert.equal(meta('og:image:secure_url'),meta('og:image'));
   assert.ok(meta('og:image:alt').length>20);
-  const image=await readFile('src/assets/share-card-v1.jpg');
+  const image=await readFile('src/assets/share-card-galaxy-v2.jpg');
   assert.equal(image.readUInt16BE(0),0xffd8,'JPEG signature');
   let offset=2,size;
   while(offset<image.length){
