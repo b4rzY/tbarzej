@@ -11,3 +11,5 @@ This repository does not apply a blanket open-source license to the portfolio or
 The workflow city is adapted from the owner's existing Dots City renderer for this portfolio. Only rendering and camera logic are included, with public illustrative roles. No private application data or integrations are distributed.
 
 The Ñami image is a screenshot of the owner's public web app, used to demonstrate the project. Depicted application branding and imagery retain their respective rights.
+
+Space Grotesk variable font is self-hosted from the Google Fonts distribution (Florian Karsten), under the SIL Open Font License 1.1. The license is included at `src/assets/NOTICE-SPACE-GROTESK.txt`.

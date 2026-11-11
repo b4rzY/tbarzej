@@ -17,11 +17,11 @@ test('distribution contains no removed private-labeled screenshot',async()=>{con
 
 test('social preview has one coherent set of metadata and public absolute URLs',async()=>{
   const meta=(key)=>{const tags=[...html.matchAll(/<meta\s+(?:property|name)="([^"]+)"\s+content="([^"]*)"\s*\/?>(?:\s*)/g)].filter(m=>m[1]===key);assert.equal(tags.length,1,key);return tags[0][2];};
-  assert.equal(meta('og:title'),'Tomas Barzelatto | Developer');
+  assert.equal(meta('og:title'),'Tomas Barzelatto | Software and Web Developer');
   assert.equal(meta('twitter:title'),meta('og:title'));
   assert.equal(meta('description'),meta('og:description'));
   assert.equal(meta('twitter:description'),meta('og:description'));
-  assert.ok(!meta('og:description').includes('Tomas Barzelatto'));
+  assert.ok(meta('og:description').includes('Tomas Barzelatto'));
   assert.ok(!meta('og:description').toLowerCase().includes('interactive controls'));
   assert.equal(meta('og:url'),'https://barzelatto.dev/');
   assert.equal(meta('og:type'),'website');
@@ -90,3 +90,5 @@ test('public evidence leads before workflow and private prototypes',async()=>{
   }
   assert.match(html,/Implementation and test preparation are AI-assisted/);
 });
+
+test('search metadata and structured person identity are crawlable without JavaScript',async()=>{assert.match(html,/<title>Tomas Barzelatto \| Software and Web Developer<\/title>/);assert.match(html,/name="robots" content="index,follow,max-image-preview:large"/);assert.match(html,/itemtype="https:\/\/schema.org\/ProfilePage"/);assert.match(html,/itemprop="mainEntity" itemscope itemtype="https:\/\/schema.org\/Person"/);assert.match(html,/itemprop="name" content="Tomas Barzelatto"/);assert.match(html,/itemprop="sameAs"/);const robots=await readFile('dist/robots.txt','utf8'),sitemap=await readFile('dist/sitemap.xml','utf8');assert.match(robots,/User-agent: \*/);assert.match(robots,/Sitemap: https:\/\/barzelatto.dev\/sitemap.xml/);assert.match(sitemap,/<loc>https:\/\/barzelatto.dev\/<\/loc>/);assert.equal([...sitemap.matchAll(/<loc>/g)].length,1);});
