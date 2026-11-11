@@ -28,6 +28,7 @@
   const coarse = window.matchMedia('(pointer: coarse)');
   let width = 0, height = 0, dpr = 1, stars = [], nodes = [];
   let frame = 0, lastFrame = 0, resizeTimer = 0, destroyed = false, motionTime = 0;
+  let scrollEnergy = 0, lastScrollY = window.scrollY || 0;
   let enabled = !reduced.matches, explicitMotion = false;
   const pointer = { x: 0, y: 0, targetX: 0, targetY: 0, strength: 0, targetStrength: 0 };
   const getState = () => ({ motion: enabled, enabled, reducedMotion: reduced.matches, coarsePointer: coarse.matches, paused: document.hidden || !enabled, destroyed });
@@ -143,9 +144,15 @@
       const star = { ...original,
         x: (original.x + drift * depth * .8) % width,
         y: (original.y + drift * depth * .3) % height };
-      const shimmer = (Math.sin(time * .001 * star.speed + star.phase) + 1) / 2;
-      const alpha = enabled ? .14 + shimmer * shimmer * .86 : .65;
-      const pulse = enabled ? shimmer : .65;
+      const shimmer = (Math.sin(time * .0022 * star.speed + star.phase) + 1) / 2;
+      const alpha = enabled ? .06 + shimmer * shimmer * .94 : .65;
+      const pulse = enabled ? shimmer * shimmer : .45;
+      if (enabled && scrollEnergy > .05) {
+        const length = scrollEnergy * depth * 17;
+        wire.strokeStyle = `rgba(182,212,255,${scrollEnergy * alpha * .5})`;
+        wire.lineWidth = Math.max(.6, star.size * .65);
+        wire.beginPath(); wire.moveTo(star.x,star.y); wire.lineTo(star.x,star.y-length); wire.stroke();
+      }
       if (star.sparkle) {
         const glowRadius = star.size * (4 + pulse * 5);
         const halo = wire.createRadialGradient(star.x, star.y, 0, star.x, star.y, glowRadius);
@@ -175,14 +182,15 @@
       wire.fillStyle = `rgba(236,246,255,${fade})`;
       wire.beginPath(); wire.arc(x, y, 2, 0, Math.PI * 2); wire.fill();
     }
+    drawLens();
     const radius = width < 600 ? 105 : 150;
     for (const p of nodes) {
       const dx = p.x - pointer.x, dy = p.y - pointer.y;
       const distance = Math.hypot(dx, dy);
       const influence = Math.max(0, 1 - distance / radius);
       const force = influence * influence * pointer.strength;
-      const targetX = dx / Math.max(distance, 1) * force * 90;
-      const targetY = dy / Math.max(distance, 1) * force * 90;
+      const targetX = (-dx + dy * .55) / Math.max(distance, 1) * force * 85;
+      const targetY = (-dy - dx * .55) / Math.max(distance, 1) * force * 85;
       // Direct feedback with no inertia when the visitor requests reduced motion.
       const ease = enabled ? .22 : 1;
       p.dx += (targetX - p.dx) * ease;
@@ -194,8 +202,40 @@
       grid.fillStyle = `rgba(183,213,248,${alpha})`;
       grid.beginPath(); grid.arc(p.x + p.dx, p.y + p.dy, .75 + displacement * .35, 0, Math.PI * 2); grid.fill();
     }
+    drawHorizon(time);
   }
 
+  // Canvas-local optical lens samples only our original procedural galaxy.
+  function drawLens() {
+    if (pointer.strength < .005) return;
+    const x = pointer.x, y = pointer.y, r = width < 600 ? 23 : 31;
+    grid.save(); grid.globalAlpha = pointer.strength;
+    for (let band = 12; band >= 1; band--) {
+      const radius = r * (1.1 + band * .20), magnification = 1 + .32 / (band * .4);
+      grid.globalAlpha = pointer.strength * .18;
+      grid.save(); grid.beginPath(); grid.arc(x,y,radius,0,Math.PI*2); grid.clip();
+      grid.drawImage(canvas,(x-radius/magnification)*dpr,(y-radius/magnification)*dpr,
+        radius*2/magnification*dpr,radius*2/magnification*dpr,x-radius,y-radius,radius*2,radius*2);
+      grid.restore();
+    }
+    grid.restore();
+  }
+  function drawHorizon(time) {
+    if (pointer.strength < .005) return;
+    const x=pointer.x,y=pointer.y,r=width<600?23:31;
+    grid.save(); grid.globalAlpha=pointer.strength;
+    const halo=grid.createRadialGradient(x,y,r*.7,x,y,r*2.8);
+    halo.addColorStop(0,'rgba(255,164,65,.9)');halo.addColorStop(.3,'rgba(242,92,18,.28)');halo.addColorStop(1,'rgba(191,47,3,0)');
+    grid.fillStyle=halo;grid.fillRect(x-r*3,y-r*3,r*6,r*6);
+    // Inclined accretion disk, black event horizon, and lensed upper arc.
+    grid.save();grid.translate(x,y);grid.rotate(-.24);grid.scale(1,.32);
+    for(let ring=4;ring>0;ring--){grid.strokeStyle=`rgba(255,${125+ring*23},${42+ring*22},${.14+ring*.13})`;grid.lineWidth=ring===1?3:1.5;grid.beginPath();grid.arc(0,0,r*(1.5+ring*.2),0,Math.PI*2);grid.stroke();}
+    grid.restore();
+    grid.fillStyle='#010103';grid.beginPath();grid.arc(x,y,r*.93,0,Math.PI*2);grid.fill();
+    grid.strokeStyle='rgba(255,192,105,.95)';grid.lineWidth=1.8;grid.beginPath();grid.arc(x,y,r,0,Math.PI*2);grid.stroke();
+    grid.strokeStyle='rgba(255,223,165,.9)';grid.lineWidth=2;grid.beginPath();grid.arc(x,y,r*1.15,Math.PI*1.05,Math.PI*1.95);grid.stroke();
+    grid.restore();
+  }
   function tick(time) {
     if (destroyed || !enabled || document.hidden) { frame = 0; return; }
     frame = requestAnimationFrame(tick);
@@ -204,6 +244,7 @@
     lastFrame = time; motionTime += elapsed;
     pointer.x += (pointer.targetX - pointer.x) * .14; pointer.y += (pointer.targetY - pointer.y) * .14;
     pointer.strength += (pointer.targetStrength - pointer.strength) * .13;
+    scrollEnergy *= .88;
     drawMesh(motionTime);
   }
   function start() { if (!frame && enabled && !document.hidden && !destroyed) frame = requestAnimationFrame(tick); }
@@ -223,6 +264,7 @@
     if (!enabled) pointer.strength = 1;
     drawMesh(motionTime);
   }
+  const onScroll = () => { const current=window.scrollY||0; if(enabled) scrollEnergy=Math.min(1,scrollEnergy+Math.abs(current-lastScrollY)/180); lastScrollY=current; };
   const onLeave = () => { pointer.targetStrength = 0; if (!enabled) { pointer.strength = 0; drawMesh(motionTime); } };
   function setMotion(value) {
     if (destroyed) return getState();
@@ -237,6 +279,7 @@
     window.visualViewport?.removeEventListener('resize', onLeave);
     window.removeEventListener('touchstart', onTouch); window.removeEventListener('touchmove', onTouch);
     window.removeEventListener('touchend', onTouchEnd); window.removeEventListener('touchcancel', onLeave);
+    window.removeEventListener('scroll', onScroll);
     window.removeEventListener('resize', onResize); window.removeEventListener('pointermove', onPointer); window.removeEventListener('blur', onLeave);
     document.documentElement.removeEventListener('pointerleave', onLeave); document.removeEventListener('visibilitychange', onVisibility);
     reduced.removeEventListener('change', onPreference); coarse.removeEventListener('change', onPreference); announce();
@@ -248,6 +291,7 @@
   window.addEventListener('touchmove', onTouch, { passive: true });
   window.addEventListener('touchend', onTouchEnd, { passive: true });
   window.addEventListener('touchcancel', onLeave, { passive: true });
+  window.addEventListener('scroll',onScroll,{passive:true});
   window.addEventListener('resize', onResize, { passive: true }); window.addEventListener('pointermove', onPointer, { passive: true }); window.addEventListener('blur', onLeave);
   document.documentElement.addEventListener('pointerleave', onLeave); document.addEventListener('visibilitychange', onVisibility);
   reduced.addEventListener('change', onPreference); coarse.addEventListener('change', onPreference);

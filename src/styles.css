@@ -148,3 +148,6 @@ h1,h2,h3{text-wrap:balance}
  .languages button,.soundtrack-toggle,.contact-actions .text-link{transition:background-color 160ms ease,color 160ms ease,transform 160ms ease}
  .languages button:active,.soundtrack-toggle:active,.contact-actions .text-link:active{transform:scale(.97)}
 }
+
+/* Foreground light must remain visible above the static readability scrim. */
+#mesh-canvas{z-index:2}#interaction-canvas{z-index:3}
