@@ -1,13 +1,13 @@
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import {readFileSync} from 'node:fs';
 const code=readFileSync('src/cosmos.js','utf8');
 function scene({coarse=false,reduced=false}={}){
- const events=new Map(),frames=new Map();let id=0,lines=0;
- const context=new Proxy({createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}}),stroke(){lines++;}},{get:(o,k)=>k in o?o[k]:()=>{},set:(o,k,v)=>(o[k]=v,true)});
+ const events=new Map(),frames=new Map();let id=0,lines=0,comets=0;
+ const context=new Proxy({createRadialGradient:()=>({addColorStop(){}}),createLinearGradient:()=>({addColorStop(){}}),stroke(){lines++;if(this.lineWidth===1.6)comets++;}},{get:(o,k)=>k in o?o[k]:()=>{},set:(o,k,v)=>(o[k]=v,true)});
  const canvases={'galaxy-canvas':{style:{},getContext:()=>context},'mesh-canvas':{style:{},getContext:()=>context}};
  const w={innerWidth:390,innerHeight:844,devicePixelRatio:3,matchMedia:q=>({matches:q.includes('coarse')?coarse:reduced,addEventListener(){},removeEventListener(){}}),dispatchEvent(){},addEventListener(n,f,opt){events.set(n,{f,opt});},removeEventListener(n){events.delete(n);}};
  const d={hidden:false,getElementById:id=>canvases[id],documentElement:{addEventListener(){},removeEventListener(){}},addEventListener(){},removeEventListener(){}};
  vm.runInNewContext(code,{window:w,document:d,CustomEvent:function(){},requestAnimationFrame:f=>{frames.set(++id,f);return id},cancelAnimationFrame:id=>frames.delete(id),setTimeout,clearTimeout});
- return {w,events,canvases,lines:()=>lines,tick(time=1000){const [id,f]=frames.entries().next().value;frames.delete(id);f(time);}};
+ return {w,events,canvases,lines:()=>lines,comets:()=>comets,tick(time=1000){const [id,f]=frames.entries().next().value;frames.delete(id);f(time);}};
 }
 test('phone background renders and touch mesh reacts without canceling scroll',()=>{const s=scene({coarse:true});assert.equal(s.canvases['galaxy-canvas'].width,585);const before=s.lines();let prevented=false;s.events.get('touchstart').f({touches:[{clientX:200,clientY:330}],preventDefault(){prevented=true}});s.tick();assert.ok(s.lines()>before);assert.equal(prevented,false);assert.equal(s.events.get('touchmove').opt.passive,true);s.events.get('touchend').f({touches:[]});s.w.portfolioCosmos.destroy();assert.equal(s.events.has('touchstart'),false);});
 test('desktop cursor remains interactive and pause stops animation',()=>{const s=scene();const before=s.lines();s.events.get('pointermove').f({clientX:200,clientY:330,pointerType:'mouse'});s.tick();assert.ok(s.lines()>before);s.w.portfolioCosmos.setMotion(false);assert.equal(s.w.portfolioCosmos.getState().motion,false);});
@@ -22,4 +22,6 @@ test("soundtrack starts and repeats at selected phrase",()=>{const s=readFileSyn
 
  test('galaxy stays stationary while individual stars and comets animate',()=>{assert.doesNotMatch(code,/canvas.style.transform|motionTime \/ 5000/);assert.match(code,/shimmer \* shimmer/);assert.match(code,/cometPhase/);const s=scene();s.tick(1000);for(let t=1040;t<9000;t+=40)s.tick(t);assert.equal(s.canvases['galaxy-canvas'].style.transform,undefined);});
 
-test('occasional comet draws without any pointer input',()=>{const s=scene({coarse:true});const before=s.lines();s.tick(1000);for(let t=1040;t<9000;t+=40)s.tick(t);assert.ok(s.lines()>before);});
+test('occasional comet draws without any pointer input',()=>{const s=scene({coarse:true});const before=s.comets();s.tick(1000);for(let t=1040;t<9000;t+=40)s.tick(t);assert.ok(s.comets()>before);});
+
+test('the brightest foreground stars animate instead of being baked into the image',()=>{assert.match(code,/sparkle: true/);assert.match(code,/if \(star.sparkle\)/);assert.match(code,/createRadialGradient\(star.x/);assert.match(code,/time \/ 1000 \+ 10\) % 12/);assert.doesNotMatch(code,/canvas.style.transform/);});

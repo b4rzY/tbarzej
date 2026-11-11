@@ -114,16 +114,10 @@
     glow(0, 0, scale * .115, '231,216,192', .50);
     glow(0, 0, scale * .048, '255,242,217', .72);
     ctx.restore();
-    // Foreground pinpoints, with restrained diffraction on only the brightest.
-    for (let i = 0; i < 40; i++) {
-      const x = random() * width, y = random() * height;
-      const radius = 1 + random();
-      glow(x, y, radius * 7, '139,185,255', .25);
-      ctx.fillStyle = '#d7e9ff'; ctx.fillRect(x - .65, y - .65, 1.3, 1.3);
-      if (i % 5 === 0) {
-        ctx.strokeStyle = 'rgba(169,205,255,.33)'; ctx.lineWidth = .65;
-        ctx.beginPath(); ctx.moveTo(x - 5, y); ctx.lineTo(x + 5, y); ctx.moveTo(x, y - 5); ctx.lineTo(x, y + 5); ctx.stroke();
-      }
+    // Bright foreground stars belong to the animation layer, not the static picture.
+    for (let i = 0; i < (width < 600 ? 16 : 32); i++) {
+      stars.push({ x: random() * width, y: random() * height, size: 1.2 + random() * .9,
+        phase: random() * Math.PI * 2, speed: .9 + random() * .8, sparkle: true });
     }
     ctx.globalCompositeOperation = 'source-over';
   }
@@ -149,22 +143,35 @@
     for (const star of stars) {
       const shimmer = (Math.sin(time * .001 * star.speed + star.phase) + 1) / 2;
       const alpha = enabled ? .14 + shimmer * shimmer * .86 : .65;
-      wire.fillStyle = `rgba(198,225,255,${alpha})`; wire.beginPath(); wire.arc(star.x, star.y, star.size, 0, Math.PI * 2); wire.fill();
+      const pulse = enabled ? shimmer : .65;
+      if (star.sparkle) {
+        const glowRadius = star.size * (4 + pulse * 5);
+        const halo = wire.createRadialGradient(star.x, star.y, 0, star.x, star.y, glowRadius);
+        halo.addColorStop(0, `rgba(185,218,255,${.12 + pulse * .5})`);
+        halo.addColorStop(1, 'rgba(112,171,255,0)');
+        wire.fillStyle = halo; wire.fillRect(star.x-glowRadius,star.y-glowRadius,glowRadius*2,glowRadius*2);
+        const ray = star.size * (1 + pulse * 3.5);
+        wire.strokeStyle = `rgba(206,229,255,${pulse * .65})`; wire.lineWidth = .75;
+        wire.beginPath(); wire.moveTo(star.x-ray,star.y); wire.lineTo(star.x+ray,star.y);
+        wire.moveTo(star.x,star.y-ray); wire.lineTo(star.x,star.y+ray); wire.stroke();
+      }
+      wire.fillStyle = `rgba(218,236,255,${alpha})`; wire.beginPath();
+      wire.arc(star.x, star.y, star.size * (.65 + pulse * .55), 0, Math.PI * 2); wire.fill();
     }
-    // A restrained shooting star crosses the outer sky about once every 18 seconds.
-    const cometPhase = (time / 1000 + 12) % 18;
-    if (enabled && cometPhase < 1.8) {
-      const progress = cometPhase / 1.8;
+    // A restrained shooting star crosses the outer sky about once every 12 seconds.
+    const cometPhase = (time / 1000 + 10) % 12;
+    if (enabled && cometPhase < 2.2) {
+      const progress = cometPhase / 2.2;
       const x = width * (.92 - progress * .46), y = height * (.12 + progress * .29);
       const tailX = x + width * .12, tailY = y - height * .075;
       const fade = Math.sin(progress * Math.PI);
       const trail = wire.createLinearGradient(x, y, tailX, tailY);
-      trail.addColorStop(0, `rgba(213,232,255,${fade * .8})`);
+      trail.addColorStop(0, `rgba(213,232,255,${fade * .95})`);
       trail.addColorStop(1, 'rgba(145,192,255,0)');
-      wire.strokeStyle = trail; wire.lineWidth = 1.3;
+      wire.strokeStyle = trail; wire.lineWidth = 1.6;
       wire.beginPath(); wire.moveTo(x, y); wire.lineTo(tailX, tailY); wire.stroke();
       wire.fillStyle = `rgba(236,246,255,${fade})`;
-      wire.beginPath(); wire.arc(x, y, 1.6, 0, Math.PI * 2); wire.fill();
+      wire.beginPath(); wire.arc(x, y, 2, 0, Math.PI * 2); wire.fill();
     }
     if (!enabled || pointer.strength < .005) return;
     const points = nodes.map(n => deformPoint(n.x, n.y, pointer, 360));
