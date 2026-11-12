@@ -1,0 +1,22 @@
+/* Cinematic concept studies. All selectors are scoped to the portfolio showcase. */
+.motion-showcase{position:relative;margin:70px auto 100px;max-width:1600px;color:#f3f1eb;--scene-accent:#e4bc8f}
+.motion-showcase .showcase-intro{display:flex;align-items:end;justify-content:space-between;gap:40px;padding:0 clamp(24px,4vw,64px) 32px}
+.motion-showcase h2{font-family:inherit;font-size:clamp(36px,5vw,68px);letter-spacing:-.035em;max-width:12ch}
+.motion-showcase .showcase-intro p{max-width:39ch;font-size:15px;color:#bfc8d4;margin:0}
+.motion-showcase .showcase-stage{position:relative;height:min(75vw,760px);min-height:530px;overflow:hidden;background:#0c1115;isolation:isolate;border-block:1px solid #ffffff30;touch-action:pan-y}
+.motion-showcase canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.motion-showcase .showcase-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#0005,transparent 45%,#000b)}
+.motion-showcase .showcase-title{position:absolute;left:clamp(24px,5vw,80px);top:52px;max-width:8ch;font-size:clamp(48px,8vw,96px);font-weight:700;line-height:.92;letter-spacing:-.035em;color:#fff;pointer-events:none;text-shadow:0 3px 30px #0006;transform:translate3d(calc(var(--sx,0)*-10px),calc(var(--sy,0)*-6px),0);transition:opacity .2s}
+.motion-showcase .showcase-copy{position:absolute;right:clamp(24px,5vw,80px);bottom:38px;max-width:36ch;font-size:14px;color:#fff;pointer-events:none}
+.motion-showcase .showcase-index{position:absolute;left:clamp(24px,5vw,80px);bottom:32px;font-size:clamp(45px,8vw,100px);line-height:1;font-weight:400;color:#ffffffa6;pointer-events:none}
+.motion-showcase .showcase-toolbar{display:grid;grid-template-columns:1fr auto;align-items:center;gap:20px;padding:20px clamp(24px,4vw,64px);border-bottom:1px solid #ffffff30;background:#070d17b8}
+.motion-showcase .showcase-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.motion-showcase button{border:1px solid #ffffff45;background:transparent;color:#e6e9ef;padding:12px 18px;font-size:13px;min-height:46px;border-radius:0;transition:background .2s,color .2s}
+.motion-showcase button:hover,.motion-showcase button[aria-pressed=true]{color:#10141a;background:#f3f1eb;border-color:#f3f1eb}
+.motion-showcase .showcase-depth{display:flex;align-items:center;gap:14px;font-size:12px;color:#d5dbe6}
+.motion-showcase input{width:120px;accent-color:#e4bc8f;min-height:44px}
+.motion-showcase .showcase-note{margin:16px clamp(24px,4vw,64px) 0;font-size:12px;color:#b7c2d1;display:flex;justify-content:space-between;gap:20px}
+@media(max-width:700px){.motion-showcase{margin-block:40px 60px}.motion-showcase .showcase-intro{display:block}.motion-showcase h2{margin-bottom:20px}.motion-showcase .showcase-stage{min-height:580px;height:80svh;max-height:720px}.motion-showcase .showcase-title{top:32px;font-size:64px}.motion-showcase .showcase-copy{left:24px;right:24px;bottom:32px;max-width:30ch}.motion-showcase .showcase-index{bottom:145px;font-size:60px}.motion-showcase .showcase-toolbar{display:block;padding-inline:20px}.motion-showcase .showcase-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.motion-showcase button{font-size:12px;padding:10px 6px}.motion-showcase .showcase-depth{margin-top:10px;justify-content:space-between}.motion-showcase input{width:55%}.motion-showcase .showcase-note{display:block}.motion-showcase .showcase-note span{display:block;margin-bottom:8px}}
+@media(prefers-reduced-motion:reduce){.motion-showcase *{transition:none!important}.motion-showcase .showcase-title{transform:none}}
+.motion-showcase .showcase-stage[data-scene="1"] .showcase-title,.motion-showcase .showcase-stage[data-scene="1"] .showcase-index{color:#252b25;text-shadow:none}
+.motion-showcase .showcase-stage[data-scene="1"] .showcase-shade{background:linear-gradient(180deg,transparent 45%,#000b)}

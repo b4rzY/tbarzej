@@ -182,7 +182,7 @@
       wire.fillStyle = `rgba(236,246,255,${fade})`;
       wire.beginPath(); wire.arc(x, y, 2, 0, Math.PI * 2); wire.fill();
     }
-    drawLens();
+    /* DOM-wide optical field is rendered by lensing.js. */
     const radius = width < 600 ? 105 : 150;
     for (const p of nodes) {
       const dx = p.x - pointer.x, dy = p.y - pointer.y;
@@ -202,7 +202,7 @@
       grid.fillStyle = `rgba(183,213,248,${alpha})`;
       grid.beginPath(); grid.arc(p.x + p.dx, p.y + p.dy, .75 + displacement * .35, 0, Math.PI * 2); grid.fill();
     }
-    drawHorizon(time);
+    /* Foreground photon ring is rendered by lensing.js. */
   }
 
   // Canvas-local optical lens samples only our original procedural galaxy.
