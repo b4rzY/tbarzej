@@ -17,7 +17,7 @@
     const i=(y*size+x)*4;
     pixels.data[i]=128+127*strength*(dx+dy*turn);
     pixels.data[i+1]=128+127*strength*(dy-dx*turn);
-    pixels.data[i+2]=128; pixels.data[i+3]=255;
+    pixels.data[i+2]=128; pixels.data[i+3]=r<1?Math.round(Math.min(1,(1-r)*40)*255):0;
   }
   context.putImageData(pixels,0,0);
   const source=map.toDataURL();
@@ -34,7 +34,7 @@
   function activate(el){
     const filter=document.createElementNS(NS,'filter');const id='gravity-'+Math.random().toString(36).slice(2);
     filter.id=id;filter.setAttribute('filterUnits','userSpaceOnUse');filter.setAttribute('primitiveUnits','userSpaceOnUse');filter.setAttribute('color-interpolation-filters','sRGB');
-    filter.innerHTML='<feFlood flood-color="rgb(128,128,128)" result="neutral"/><feImage width="340" height="340" result="field"/><feMerge result="map"><feMergeNode in="neutral"/><feMergeNode in="field"/></feMerge><feDisplacementMap in="SourceGraphic" in2="map" scale="110" xChannelSelector="R" yChannelSelector="G"/>';
+    filter.innerHTML='<feFlood flood-color="rgb(128,128,128)" result="neutral"/><feImage width="340" height="340" result="field"/><feMerge result="map"><feMergeNode in="neutral"/><feMergeNode in="field"/></feMerge><feDisplacementMap in="SourceGraphic" in2="map" scale="110" xChannelSelector="R" yChannelSelector="G" result="bent"/><feComposite in="SourceGraphic" in2="field" operator="out" result="outside"/><feComposite in="bent" in2="field" operator="in" result="inside"/><feMerge><feMergeNode in="outside"/><feMergeNode in="inside"/></feMerge>';
     const image=filter.querySelector('feImage');image.setAttribute('href',source);defs.append(filter);
     const original=el.style.filter;el.style.filter=`url(#${id})`;active.set(el,{filter,image,original});return active.get(el);
   }
@@ -52,6 +52,7 @@
       keep.add(el);const state=active.get(el)||activate(el);
       state.filter.setAttribute('x','-60');state.filter.setAttribute('y','-60');
       state.filter.setAttribute('width',String(rect.width+120));state.filter.setAttribute('height',String(rect.height+120));
+      for(const primitive of state.filter.children){if(primitive===state.image)continue;primitive.setAttribute('x','-60');primitive.setAttribute('y','-60');primitive.setAttribute('width',String(rect.width+120));primitive.setAttribute('height',String(rect.height+120));}
       state.image.setAttribute('x',String(x-rect.left-radius));state.image.setAttribute('y',String(y-rect.top-radius));
     }
     for(const [el,state]of active)if(!keep.has(el)){el.style.filter=state.original;state.filter.remove();active.delete(el);}
