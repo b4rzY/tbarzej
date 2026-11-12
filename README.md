@@ -54,6 +54,7 @@ The soundtrack cue starts at 1:38 in the supplied extended arrangement and repea
 
 ## Interactive optical studies
 
-The gravity cursor now applies a bounded SVG displacement field to actual page text, images and canvas surfaces, rather than drawing only on the galaxy. It is decorative: links retain their normal DOM hit areas. Escape, keyboard focus, touch release and reduced-motion preferences remove the lens. No webcam, capture, cloning or third-party service is used.
+The gravity cursor now applies a bounded SVG displacement field to actual page text, images and canvas surfaces, rather than drawing only on the galaxy. It is decorative: links retain their normal DOM hit areas. Escape, keyboard focus, touch release, cancellation and scrolling remove the lens. Desktop filtering is limited to three small nearby content surfaces. Mobile touch uses two lightweight transforms instead of SVG filtering. Direct pointer feedback has no trailing animation, including with reduced-motion preferences. The original galaxy cursor is retained; no duplicate foreground cursor is added. No webcam, capture, cloning or third-party service is used.
 
 Three original concept scenes explore an architectural corridor, a sculptural product and a live venue. These are procedural illustrative website directions, not photorealistic filmed environments or client commissions. They offer pointer/touch perspective, scroll travel, keyboard depth control, bilingual copy, pause and offscreen suspension. The two supplied reference videos informed spatial depth and editorial composition; their footage is not redistributed.
+
