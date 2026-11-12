@@ -29,6 +29,7 @@
   let width = 0, height = 0, dpr = 1, stars = [], nodes = [];
   let frame = 0, lastFrame = 0, resizeTimer = 0, destroyed = false, motionTime = 0;
   let scrollEnergy = 0, lastScrollY = window.scrollY || 0;
+  let trails = [], lastTrailTime = -Infinity;
   let enabled = !reduced.matches, explicitMotion = false;
   const pointer = { x: 0, y: 0, targetX: 0, targetY: 0, strength: 0, targetStrength: 0 };
   const getState = () => ({ motion: enabled, enabled, reducedMotion: reduced.matches, coarsePointer: coarse.matches, paused: document.hidden || !enabled, destroyed });
@@ -124,15 +125,41 @@
     }
     ctx.globalCompositeOperation = 'source-over';
   }
-  // Original particle displacement field: bounded density, no texture or third-party code.
+  // Club 5300's connected particle trail: sparse ambient nodes, not fixed tiles.
+  // Match its 1.6s trail, 125px connections, gold glow and bounded density.
   function buildMesh() {
-    nodes = [];
-    const random = seeded(98171);
-    const spacing = Math.max(width < 600 ? 13 : 15, Math.sqrt(width * height / 6500));
-    for (let y = 0; y < height + spacing; y += spacing) {
-      for (let x = 0; x < width + spacing; x += spacing) {
-        nodes.push({ x: x + random() * 3, y: y + random() * 3, dx: 0, dy: 0 });
+    const count = Math.min(80, Math.max(32, Math.round(width * height / 6500)));
+    nodes = Array.from({ length: count }, (_, i) => ({
+      x: (i * .61803398875 + .12) % 1 * width,
+      y: (i * .41421356237 + .08) % 1 * height, trail: false
+    }));
+    trails = [];
+  }
+  function drawParticleWeb(time) {
+    trails = trails.filter(p => time - p.born < 1600);
+    const points = nodes.map((p, i) => enabled ? {
+      ...p, x: p.x + Math.sin(time / 9000 + i * 1.7) * 18,
+      y: p.y + Math.cos(time / 11000 + i * 2.1) * 16
+    } : p).concat(trails);
+    const opacity = p => p.trail ? Math.max(0, 1 - (time - p.born) / 1600) : .48;
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i], alpha = opacity(p);
+      for (let j = i + 1; j < points.length; j++) {
+        const q = points[j], active = p.trail || q.trail;
+        const distance = Math.hypot(p.x - q.x, p.y - q.y), reach = active ? 125 : 115;
+        if (distance > reach) continue;
+        grid.strokeStyle = `rgba(211,177,111,${(1-distance/reach)*Math.min(alpha,opacity(q))*(active?.9:.38)})`;
+        grid.lineWidth = active ? .8 : .5;
+        grid.beginPath(); grid.moveTo(p.x,p.y); grid.lineTo(q.x,q.y); grid.stroke();
       }
+      if (p.trail) {
+        const halo = grid.createRadialGradient(p.x,p.y,0,p.x,p.y,16);
+        halo.addColorStop(0,`rgba(220,184,112,${alpha*.22})`);
+        halo.addColorStop(1,'rgba(220,184,112,0)');
+        grid.fillStyle=halo; grid.fillRect(p.x-16,p.y-16,32,32);
+      }
+      grid.fillStyle=`rgba(234,205,146,${alpha})`;
+      grid.beginPath(); grid.arc(p.x,p.y,p.trail?2:1.2,0,Math.PI*2); grid.fill();
     }
   }
   function drawMesh(time) {
@@ -182,60 +209,9 @@
       wire.fillStyle = `rgba(236,246,255,${fade})`;
       wire.beginPath(); wire.arc(x, y, 2, 0, Math.PI * 2); wire.fill();
     }
-    drawLens();
-    const radius = width < 600 ? 105 : 150;
-    for (const p of nodes) {
-      const dx = p.x - pointer.x, dy = p.y - pointer.y;
-      const distance = Math.hypot(dx, dy);
-      const influence = Math.max(0, 1 - distance / radius);
-      const force = influence * influence * pointer.strength;
-      const targetX = (-dx + dy * .55) / Math.max(distance, 1) * force * 85;
-      const targetY = (-dy - dx * .55) / Math.max(distance, 1) * force * 85;
-      // Direct feedback with no inertia when the visitor requests reduced motion.
-      const ease = enabled ? .22 : 1;
-      p.dx += (targetX - p.dx) * ease;
-      p.dy += (targetY - p.dy) * ease;
-      const displacement = Math.min(1, Math.hypot(p.dx, p.dy) / 28);
-      const vicinity = Math.max(0, 1 - distance / (radius * 1.8)) * pointer.strength;
-      const alpha = Math.max(vicinity * .32, displacement * .72);
-      if (alpha < .008) continue;
-      grid.fillStyle = `rgba(183,213,248,${alpha})`;
-      grid.beginPath(); grid.arc(p.x + p.dx, p.y + p.dy, .75 + displacement * .35, 0, Math.PI * 2); grid.fill();
-    }
-    drawHorizon(time);
+    drawParticleWeb(time);
   }
 
-  // Canvas-local optical lens samples only our original procedural galaxy.
-  function drawLens() {
-    if (pointer.strength < .005) return;
-    const x = pointer.x, y = pointer.y, r = width < 600 ? 23 : 31;
-    grid.save(); grid.globalAlpha = pointer.strength;
-    for (let band = 12; band >= 1; band--) {
-      const radius = r * (1.1 + band * .20), magnification = 1 + .32 / (band * .4);
-      grid.globalAlpha = pointer.strength * .18;
-      grid.save(); grid.beginPath(); grid.arc(x,y,radius,0,Math.PI*2); grid.clip();
-      grid.drawImage(canvas,(x-radius/magnification)*dpr,(y-radius/magnification)*dpr,
-        radius*2/magnification*dpr,radius*2/magnification*dpr,x-radius,y-radius,radius*2,radius*2);
-      grid.restore();
-    }
-    grid.restore();
-  }
-  function drawHorizon(time) {
-    if (pointer.strength < .005) return;
-    const x=pointer.x,y=pointer.y,r=width<600?23:31;
-    grid.save(); grid.globalAlpha=pointer.strength;
-    const halo=grid.createRadialGradient(x,y,r*.7,x,y,r*2.8);
-    halo.addColorStop(0,'rgba(255,164,65,.9)');halo.addColorStop(.3,'rgba(242,92,18,.28)');halo.addColorStop(1,'rgba(191,47,3,0)');
-    grid.fillStyle=halo;grid.fillRect(x-r*3,y-r*3,r*6,r*6);
-    // Inclined accretion disk, black event horizon, and lensed upper arc.
-    grid.save();grid.translate(x,y);grid.rotate(-.24);grid.scale(1,.32);
-    for(let ring=4;ring>0;ring--){grid.strokeStyle=`rgba(255,${125+ring*23},${42+ring*22},${.14+ring*.13})`;grid.lineWidth=ring===1?3:1.5;grid.beginPath();grid.arc(0,0,r*(1.5+ring*.2),0,Math.PI*2);grid.stroke();}
-    grid.restore();
-    grid.fillStyle='#010103';grid.beginPath();grid.arc(x,y,r*.93,0,Math.PI*2);grid.fill();
-    grid.strokeStyle='rgba(255,192,105,.95)';grid.lineWidth=1.8;grid.beginPath();grid.arc(x,y,r,0,Math.PI*2);grid.stroke();
-    grid.strokeStyle='rgba(255,223,165,.9)';grid.lineWidth=2;grid.beginPath();grid.arc(x,y,r*1.15,Math.PI*1.05,Math.PI*1.95);grid.stroke();
-    grid.restore();
-  }
   function tick(time) {
     if (destroyed || !enabled || document.hidden) { frame = 0; return; }
     frame = requestAnimationFrame(tick);
@@ -258,18 +234,24 @@
   const onResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 180); };
   function onPointer(event) {
     if (destroyed || event.pointerType === 'touch' || (window.visualViewport?.scale || 1) > 1.05) return;
-    if (pointer.targetStrength === 0) { pointer.x = event.clientX; pointer.y = event.clientY; pointer.strength = .65; }
-    pointer.targetX = event.clientX; pointer.targetY = event.clientY; pointer.targetStrength = 1;
-    pointer.x = event.clientX; pointer.y = event.clientY;
-    if (!enabled) pointer.strength = 1;
+    const x = event.clientX, y = event.clientY;
+    if (enabled && motionTime - lastTrailTime >= 22) {
+      lastTrailTime = motionTime;
+      trails.push({x,y,born:motionTime,trail:true},
+        {x:x+Math.sin(motionTime)*20,y:y+Math.cos(motionTime)*20,born:motionTime,trail:true});
+      if (trails.length > 90) trails.splice(0,trails.length-90);
+    } else if (!enabled) {
+      // A single static response, with no trail or autonomous motion.
+      trails = [{x,y,born:motionTime,trail:true}];
+    }
     drawMesh(motionTime);
   }
   const onScroll = () => { const current=window.scrollY||0; if(enabled) scrollEnergy=Math.min(1,scrollEnergy+Math.abs(current-lastScrollY)/180); lastScrollY=current; };
-  const onLeave = () => { pointer.targetStrength = 0; if (!enabled) { pointer.strength = 0; drawMesh(motionTime); } };
+  const onLeave = () => { pointer.targetStrength = 0; if (!enabled) { trails = []; drawMesh(motionTime); } };
   function setMotion(value) {
     if (destroyed) return getState();
     enabled = Boolean(value); explicitMotion = true;
-    if (!enabled) { cancelAnimationFrame(frame); frame = 0; lastFrame = 0; pointer.strength = 0; pointer.targetStrength = 0; drawMesh(0); } else start();
+    if (!enabled) { cancelAnimationFrame(frame); frame = 0; lastFrame = 0; pointer.strength = 0; pointer.targetStrength = 0; trails = []; drawMesh(0); } else start();
     announce(); return getState();
   }
   function onPreference() { if (!explicitMotion) { enabled = !reduced.matches; if (!enabled) { cancelAnimationFrame(frame); frame = 0; drawMesh(0); } else start(); } announce(); }
