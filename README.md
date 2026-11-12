@@ -46,7 +46,7 @@ The Ñami case links to the public meal-planning web app and shows a signed-out 
 
 ## Galaxy and soundtrack
 
-The procedural galaxy runs on desktop and mobile. Mouse movement and passive touch gestures leave the same connected gold particle trail used by Club 5300: nearby points form an organic triangular wireframe and fade after 1.6 seconds. The previous black-hole cursor is replaced; the galaxy, stars and comets remain. Touch does not block ordinary scrolling or pinch zoom. Reduced-motion preferences disable animation until explicitly enabled.
+The procedural galaxy runs on desktop and mobile. Mouse movement and passive touch gestures reveal the mesh without blocking ordinary page scrolling. Reduced-motion preferences disable animation until explicitly enabled.
 
 The owner-supplied soundtrack is local, attempts audible looping autoplay once, and can be paused or adjusted. If browser policy blocks autoplay, an accessible Play control remains. No external audio request is used.
 

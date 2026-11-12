@@ -29,15 +29,8 @@ test('the brightest foreground stars animate instead of being baked into the ima
 test('pointer particles respond immediately and remains usable under reduced motion',()=>{const s=scene({reduced:true});const before=s.particles();s.events.get('pointermove').f({clientX:200,clientY:330,pointerType:'mouse'});assert.ok(s.particles()>before);assert.equal(s.w.portfolioCosmos.getState().motion,false);});
 test('particle response sits above scrim without covering page content',()=>{const html=readFileSync('src/index.html','utf8'),css=readFileSync('src/styles.css','utf8');assert.match(html,/id="interaction-canvas"/);assert.match(css,/\.cosmos-scrim\{z-index:1\}#interaction-canvas\{z-index:2\}/);});
 
-test('Club 5300 connected trail replaces the black hole and keeps work bounded',()=>{
- assert.match(code,/Math.min\(80/);assert.match(code,/trails.length > 90/);
- assert.match(code,/time - p.born < 1600/);assert.match(code,/active \? 125 : 115/);
- assert.match(code,/grid.lineTo\(q.x,q.y\)/);assert.doesNotMatch(code,/drawHorizon|drawLens/);
-});
-test('pointer trail connects then fades without blocking touch scrolling',()=>{
- const s=scene();const before=s.lines();s.events.get('pointermove').f({clientX:200,clientY:330,pointerType:'mouse'});
- s.tick(1000);assert.ok(s.lines()>before);for(let t=1040;t<3000;t+=40)s.tick(t);
- assert.equal(s.events.get('touchmove').opt.passive,true);
-});
+test('particle field replaces triangular grid and keeps work bounded',()=>{assert.doesNotMatch(code,/edges.push|for \(const \[a, b\] of edges\)/);assert.match(code,/height \/ 6500/);assert.match(code,/const ease = enabled \? .22 : 1/);assert.match(code,/original.x \+ drift/);});
+
+test('black hole lenses original canvas and draws dark horizon with orange disk',()=>{assert.match(code,/grid.drawImage\(canvas/);assert.match(code,/grid.fillStyle='#010103'/);assert.match(code,/rgba\(255,192,105/);assert.match(code,/drawHorizon\(time\)/);assert.match(code,/\(-dx \+ dy \* .55\)/);});
 test('scroll energizes star trails passively and is removed on teardown',()=>{const s=scene();assert.equal(s.events.get('scroll').opt.passive,true);s.w.scrollY=250;s.events.get('scroll').f();s.tick(1000);s.w.portfolioCosmos.destroy();assert.equal(s.events.has('scroll'),false);assert.match(code,/if \(enabled && scrollEnergy > .05\)/);});
 test('foreground twinkle is faster and above the scrim',()=>{assert.match(code,/time \* .0022 \* star.speed/);assert.match(readFileSync('src/styles.css','utf8'),/#mesh-canvas\{z-index:2\}#interaction-canvas\{z-index:3\}/);});
