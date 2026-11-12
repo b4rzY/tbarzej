@@ -31,6 +31,6 @@ test('particle response sits above scrim without covering page content',()=>{con
 
 test('particle field replaces triangular grid and keeps work bounded',()=>{assert.doesNotMatch(code,/edges.push|for \(const \[a, b\] of edges\)/);assert.match(code,/height \/ 6500/);assert.match(code,/const ease = enabled \? .22 : 1/);assert.match(code,/original.x \+ drift/);});
 
-test('black-hole optics are delegated to the full-content lens',()=>{assert.match(code,/DOM-wide optical field/);assert.match(code,/Foreground photon ring/);assert.doesNotMatch(code,/function drawLens/);});
+test('existing galaxy cursor remains the only black hole',()=>{assert.match(code,/drawHorizon\(time\);/);assert.match(code,/drawLens\(\);/);});
 test('scroll energizes star trails passively and is removed on teardown',()=>{const s=scene();assert.equal(s.events.get('scroll').opt.passive,true);s.w.scrollY=250;s.events.get('scroll').f();s.tick(1000);s.w.portfolioCosmos.destroy();assert.equal(s.events.has('scroll'),false);assert.match(code,/if \(enabled && scrollEnergy > .05\)/);});
 test('foreground twinkle is faster and above the scrim',()=>{assert.match(code,/time \* .0022 \* star.speed/);assert.match(readFileSync('src/styles.css','utf8'),/#mesh-canvas\{z-index:2\}#interaction-canvas\{z-index:3\}/);});
