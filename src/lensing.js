@@ -26,9 +26,9 @@
   svg.style.cssText='position:absolute;pointer-events:none';
   const defs=document.createElementNS(NS,'defs');svg.append(defs);document.body.append(svg);
   // Keep the existing cosmos cursor; never draw a second foreground cursor.
-  const active=new Map(), shifted=new Map();let x=-1000,y=-1000,frame=0,visible=false,touch=false;
+  const active=new Map();let x=-1000,y=-1000,frame=0,visible=false,touch=false,lastTouchFrame=0,releaseTimer=0;
   const candidates=[...document.querySelectorAll('h1,h2,h3,p,.case img,.showcase-title,.showcase-copy')];
-  function reset(){for(const [el,{filter,original}] of active){el.style.filter=original;filter.remove();}active.clear();for(const [el,original]of shifted)el.style.transform=original;shifted.clear();}
+  function reset(){for(const [el,{filter,original}] of active){el.style.filter=original;filter.remove();}active.clear();}
   function activate(el){
     const filter=document.createElementNS(NS,'filter');const id='gravity-'+Math.random().toString(36).slice(2);
     filter.id=id;filter.setAttribute('filterUnits','userSpaceOnUse');filter.setAttribute('primitiveUnits','userSpaceOnUse');filter.setAttribute('color-interpolation-filters','sRGB');
@@ -36,42 +36,41 @@
     const image=filter.querySelector('feImage');image.setAttribute('href',source);defs.append(filter);
     const original=el.style.filter;el.style.filter=`url(#${id})`;active.set(el,{filter,image,original});return active.get(el);
   }
-  function render(){
+  function render(time){
     frame=0;if(!visible||document.hidden){reset();return;}
-    for(const [el,original]of shifted)el.style.transform=original;shifted.clear();const keep=new Set();
-    const nearby=candidates.map(el=>({el,rect:el.getBoundingClientRect()})).filter(({rect})=>rect.width>0&&rect.height>0&&rect.width*rect.height<500000&&x>rect.left-radius&&x<rect.right+radius&&y>rect.top-radius&&y<rect.bottom+radius).sort((a,b)=>Math.hypot(x-(a.rect.left+a.rect.width/2),y-(a.rect.top+a.rect.height/2))-Math.hypot(x-(b.rect.left+b.rect.width/2),y-(b.rect.top+b.rect.height/2))).slice(0,touch?2:3);
+    if(touch&&time-lastTouchFrame<40){frame=requestAnimationFrame(render);return;}if(touch)lastTouchFrame=time;
+    const keep=new Set();
+    const nearby=candidates.map(el=>({el,rect:el.getBoundingClientRect()})).filter(({rect})=>rect.width>0&&rect.height>0&&rect.width*rect.height<(touch?180000:500000)&&x>rect.left-radius&&x<rect.right+radius&&y>rect.top-radius&&y<rect.bottom+radius).sort((a,b)=>Math.hypot(x-(a.rect.left+a.rect.width/2),y-(a.rect.top+a.rect.height/2))-Math.hypot(x-(b.rect.left+b.rect.width/2),y-(b.rect.top+b.rect.height/2))).slice(0,touch?1:3);
     for(const {el,rect} of nearby){
-      if(touch){
-        // GPU-friendly direct touch feedback. No SVG filtering, canvas sampling,
-        // continuous loop, or inertial animation on phones. Scroll cancels it.
-        const dx=x-(rect.left+rect.width/2),dy=y-(rect.top+rect.height/2);
-        const strength=Math.max(0,1-Math.hypot(dx/Math.max(rect.width,160),dy/160));
-        shifted.set(el,el.style.transform);
-        el.style.transform=`translate3d(${dx*.025*strength}px,${dy*.025*strength}px,0) skewX(${dx/70*strength}deg) scale(${1+strength*.018})`;
-        continue;
-      }
       keep.add(el);const state=active.get(el)||activate(el);
       for(const primitive of [state.filter,...state.filter.children]){if(primitive===state.image)continue;primitive.setAttribute('x','-60');primitive.setAttribute('y','-60');primitive.setAttribute('width',String(rect.width+120));primitive.setAttribute('height',String(rect.height+120));}
-      state.image.setAttribute('x',String(x-rect.left-radius));state.image.setAttribute('y',String(y-rect.top-radius));
+      const localRadius=touch?120:radius;state.image.setAttribute('width',String(localRadius*2));state.image.setAttribute('height',String(localRadius*2));state.filter.querySelector('feDisplacementMap').setAttribute('scale',touch?'95':'110');
+      state.image.setAttribute('x',String(x-rect.left-localRadius));state.image.setAttribute('y',String(y-rect.top-localRadius));
     }
     for(const [el,state]of active)if(!keep.has(el)){el.style.filter=state.original;state.filter.remove();active.delete(el);}
   }
   function update(event){
     if((window.visualViewport?.scale||1)>1.05){stop();return;}
     touch=event.pointerType==='touch'||matchMedia('(pointer: coarse)').matches;
-    x=event.clientX;y=event.clientY;visible=true;if(!frame)frame=requestAnimationFrame(render);
+    clearTimeout(releaseTimer);x=event.clientX;y=event.clientY;visible=true;if(!frame)frame=requestAnimationFrame(render);
   }
-  function stop(){visible=false;cancelAnimationFrame(frame);frame=0;reset();}
+  function stop(){clearTimeout(releaseTimer);visible=false;cancelAnimationFrame(frame);frame=0;reset();}
   window.addEventListener('pointermove',update,{passive:true});
   window.addEventListener('pointerdown',update,{passive:true});
-  window.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse')stop();},{passive:true});
+  const release=()=>{clearTimeout(releaseTimer);releaseTimer=setTimeout(stop,180);};
+  window.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse')release();},{passive:true});
+  const followTouch=e=>{if(e.touches.length!==1){stop();return;}const p=e.touches[0];update({clientX:p.clientX,clientY:p.clientY,pointerType:'touch'});};
+  window.addEventListener('touchstart',followTouch,{passive:true});
+  window.addEventListener('touchmove',followTouch,{passive:true});
+  window.addEventListener('touchend',release,{passive:true});
+  window.addEventListener('touchcancel',stop,{passive:true});
   window.addEventListener('pointercancel',stop,{passive:true});
   document.documentElement.addEventListener('pointerleave',stop);
   window.addEventListener('blur',stop);window.addEventListener('resize',stop);
-  window.addEventListener('scroll',stop,{passive:true});
+  window.addEventListener('scroll',()=>{if(touch&&visible){if(!frame)frame=requestAnimationFrame(render);}else stop();},{passive:true});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});reduced.addEventListener('change',stop);
   // Reduced motion removes ambient animation elsewhere. This direct, non-inertial
   // pointer feedback remains visible on desktop, without autoplay or trailing.
   document.addEventListener('keydown',e=>{if(e.key==='Tab'||e.key==='Escape')stop();});
-  window.portfolioGravity={getState:()=>({active:visible,surfaces:active.size,touchSurfaces:shifted.size,touch,radius}),reset:stop};
+  window.portfolioGravity={getState:()=>({active:visible,surfaces:active.size,touch,radius}),reset:stop};
 })();
