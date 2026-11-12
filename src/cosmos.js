@@ -205,37 +205,6 @@
     /* Foreground photon ring is rendered by lensing.js. */
   }
 
-  // Canvas-local optical lens samples only our original procedural galaxy.
-  function drawLens() {
-    if (pointer.strength < .005) return;
-    const x = pointer.x, y = pointer.y, r = width < 600 ? 23 : 31;
-    grid.save(); grid.globalAlpha = pointer.strength;
-    for (let band = 12; band >= 1; band--) {
-      const radius = r * (1.1 + band * .20), magnification = 1 + .32 / (band * .4);
-      grid.globalAlpha = pointer.strength * .18;
-      grid.save(); grid.beginPath(); grid.arc(x,y,radius,0,Math.PI*2); grid.clip();
-      grid.drawImage(canvas,(x-radius/magnification)*dpr,(y-radius/magnification)*dpr,
-        radius*2/magnification*dpr,radius*2/magnification*dpr,x-radius,y-radius,radius*2,radius*2);
-      grid.restore();
-    }
-    grid.restore();
-  }
-  function drawHorizon(time) {
-    if (pointer.strength < .005) return;
-    const x=pointer.x,y=pointer.y,r=width<600?23:31;
-    grid.save(); grid.globalAlpha=pointer.strength;
-    const halo=grid.createRadialGradient(x,y,r*.7,x,y,r*2.8);
-    halo.addColorStop(0,'rgba(255,164,65,.9)');halo.addColorStop(.3,'rgba(242,92,18,.28)');halo.addColorStop(1,'rgba(191,47,3,0)');
-    grid.fillStyle=halo;grid.fillRect(x-r*3,y-r*3,r*6,r*6);
-    // Inclined accretion disk, black event horizon, and lensed upper arc.
-    grid.save();grid.translate(x,y);grid.rotate(-.24);grid.scale(1,.32);
-    for(let ring=4;ring>0;ring--){grid.strokeStyle=`rgba(255,${125+ring*23},${42+ring*22},${.14+ring*.13})`;grid.lineWidth=ring===1?3:1.5;grid.beginPath();grid.arc(0,0,r*(1.5+ring*.2),0,Math.PI*2);grid.stroke();}
-    grid.restore();
-    grid.fillStyle='#010103';grid.beginPath();grid.arc(x,y,r*.93,0,Math.PI*2);grid.fill();
-    grid.strokeStyle='rgba(255,192,105,.95)';grid.lineWidth=1.8;grid.beginPath();grid.arc(x,y,r,0,Math.PI*2);grid.stroke();
-    grid.strokeStyle='rgba(255,223,165,.9)';grid.lineWidth=2;grid.beginPath();grid.arc(x,y,r*1.15,Math.PI*1.05,Math.PI*1.95);grid.stroke();
-    grid.restore();
-  }
   function tick(time) {
     if (destroyed || !enabled || document.hidden) { frame = 0; return; }
     frame = requestAnimationFrame(tick);

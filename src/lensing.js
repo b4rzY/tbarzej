@@ -17,7 +17,7 @@
     const i=(y*size+x)*4;
     pixels.data[i]=128+127*strength*(dx+dy*turn);
     pixels.data[i+1]=128+127*strength*(dy-dx*turn);
-    pixels.data[i+2]=128; pixels.data[i+3]=r<1?Math.round(Math.min(1,(1-r)*40)*255):0;
+    pixels.data[i+2]=128; pixels.data[i+3]=255;
   }
   context.putImageData(pixels,0,0);
   const source=map.toDataURL();
@@ -29,7 +29,7 @@
   halo.innerHTML='<span class="gravity-disk"></span><span class="gravity-core"></span>';
   document.body.append(halo);
   const active=new Map();let x=-1000,y=-1000,tx=x,ty=y,frame=0,visible=false,last=0;
-  const selectors='#cosmos,.masthead,.intro-main,#core-stage,.section-heading,.case,.exhibit,.focus-heading,.focus-list,#background,#contact,footer,#motion-studies';
+  const selectors='#cosmos,.masthead,.intro-main,#core-stage,.section-heading,.case,.exhibit,.focus-heading,.focus-list,#background,#contact,footer,#motion-studies,#approach,#workflow-city,.toolkit,.beyond';
   function reset(){for(const [el,{filter,original}] of active){el.style.filter=original;filter.remove();}active.clear();halo.classList.remove('visible');}
   function activate(el){
     const filter=document.createElementNS(NS,'filter');const id='gravity-'+Math.random().toString(36).slice(2);

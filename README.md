@@ -51,3 +51,9 @@ The procedural galaxy runs on desktop and mobile. Mouse movement and passive tou
 The owner-supplied soundtrack is local, attempts audible looping autoplay once, and can be paused or adjusted. If browser policy blocks autoplay, an accessible Play control remains. No external audio request is used.
 
 The soundtrack cue starts at 1:38 in the supplied extended arrangement and repeats from that phrase when the track ends. This entrance was selected from tonal and loudness analysis of this file, not a claimed movie-scene timestamp.
+
+## Interactive optical studies
+
+The gravity cursor now applies a bounded SVG displacement field to actual page text, images and canvas surfaces, rather than drawing only on the galaxy. It is decorative: links retain their normal DOM hit areas. Escape, keyboard focus, touch release and reduced-motion preferences remove the lens. No webcam, capture, cloning or third-party service is used.
+
+Three original concept scenes explore an architectural corridor, a sculptural product and a live venue. These are procedural illustrative website directions, not photorealistic filmed environments or client commissions. They offer pointer/touch perspective, scroll travel, keyboard depth control, bilingual copy, pause and offscreen suspension. The two supplied reference videos informed spatial depth and editorial composition; their footage is not redistributed.
