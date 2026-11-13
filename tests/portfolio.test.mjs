@@ -4,7 +4,7 @@ import {readFile,access,readdir} from 'node:fs/promises';
 const html=await readFile('src/index.html','utf8');
 const js=await readFile('src/app.js','utf8');
 const css=await readFile('src/styles.css','utf8');
-test('all local resources exist',async()=>{for(const m of html.matchAll(/(?:src|href)="([^"#][^"]*)"/g)){if(m[1].startsWith('data:'))continue;if(['mailto:tbarzelattoj@gmail.com','https://github.com/b4rzY/tbarzej/blob/main/src/city.js','https://github.com/b4rzY/tbarzej/blob/main/tests/city.test.mjs','https://github.com/b4rzY/tbarzej','https://cl.linkedin.com/in/tomas-barzelatto-19a070b6','https://barzelatto.dev/','https://mealprep-xi-six.vercel.app/'].includes(m[1]))continue;assert.ok(!/^https?:/.test(m[1]),'unexpected remote resource');await access('src/'+m[1].split('?')[0]);}});
+test('all local resources exist',async()=>{for(const m of html.matchAll(/(?:src|href)="([^"#][^"]*)"/g)){if(m[1].startsWith('data:'))continue;if(['mailto:tbarzelattoj@gmail.com','https://github.com/b4rzY/tbarzej/blob/main/src/city.js','https://github.com/b4rzY/tbarzej/blob/main/tests/city.test.mjs','https://github.com/b4rzY/tbarzej','https://cl.linkedin.com/in/tomas-barzelatto-19a070b6','https://barzelatto.dev/','https://namiapp.hyp.app/'].includes(m[1]))continue;assert.ok(!/^https?:/.test(m[1]),'unexpected remote resource');await access('src/'+m[1].split('?')[0]);}});
 test('section links have targets',()=>{const ids=new Set([...html.matchAll(/id="([^"]+)"/g)].map(m=>m[1]));for(const m of html.matchAll(/href="#([^\"]+)"/g))assert.ok(ids.has(m[1]),'missing '+m[1]);});
 test('unique IDs',()=>{const ids=[...html.matchAll(/id="([^"]+)"/g)].map(m=>m[1]);assert.equal(ids.length,new Set(ids).size);});
 test('every translation key has Spanish copy',()=>{for(const m of html.matchAll(/data-i18n(?:-html)?="([^"]+)"/g))assert.ok(js.includes(m[1]+':'),m[1]);});
@@ -57,7 +57,7 @@ test('new portfolio entries retain requested scope and public boundaries',()=>{
   assert.ok(html.includes('Simulated activity'));
   assert.ok(html.includes('not live agent telemetry'));
   assert.ok(html.includes('id="nami"'));
-  assert.ok(html.includes('https://mealprep-xi-six.vercel.app/'));
+  assert.ok(html.includes('https://namiapp.hyp.app/'));
   assert.ok(html.includes('native iPhone app is marked coming soon'));
 });
 
