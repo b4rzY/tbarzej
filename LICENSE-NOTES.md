@@ -17,3 +17,7 @@ Space Grotesk variable font is self-hosted from the Google Fonts distribution (F
 
 ## Original ASCII studies
 The character-field black hole, petal and wave studies are independently implemented mathematical artwork. JIN2 (@jin_22ee) provided visual inspiration only. The creator repository is https://github.com/JIN2-ASCII/-JIN2-ASCII. Its BLACK-HOLE license permits personal projects but requires written permission for commercial use. No source code or assets from that repository are incorporated. The original mathematical study here uses a separate implementation and is not presented as the creator’s artwork. Existing portfolio content, optical cursor, controls and project scenes are preserved. Character work is bounded, pauses in hidden tabs, follows reduced-motion preferences and supports explicit pause. The gallery suspends rendering offscreen.
+
+## US $100 ASCII study
+
+The Benjamin Franklin note study samples the low-resolution official specimen image from the U.S. Currency Education Program, https://www.uscurrency.gov/denominations/100 . Its SPECIMEN markings are retained. Reference: https://www.uscurrency.gov/sites/default/files/styles/bill_version/public/denominations/100-front-2013-present.jpg.jpg?itok=tVYD2VJT . The character-rendering and animation code are independently implemented. This is an on-screen illustrative artwork, not a currency-printing asset.

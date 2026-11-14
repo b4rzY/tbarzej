@@ -69,4 +69,4 @@ At the owner’s explicit direction, visible canvas scenes loop on load, includi
 
 ### Recognizable character studies
 
-Rose and the fictional dollar note are independently drawn vector designs (editable SVGs in assets), sampled into character-color atlases. Zeus uses the owner-confirmed photo, with a tighter silhouette mask. Cached letter atlases avoid thousands of per-frame text calls; visible movement uses bounded strip deformation, breathing and sway at the existing 24fps art budget. These are animated illustrations, not biological motion reconstruction or legal tender.
+Rose is an independently drawn vector design (editable SVG in assets), sampled into a character-color atlas. The $100 Franklin study uses the official US Currency Education Program specimen reference with its specimen labels retained. Zeus uses the owner-confirmed photo, with a tighter silhouette mask. Cached letter atlases avoid thousands of per-frame text calls; visible movement uses bounded strip deformation, breathing and sway at the existing 24fps art budget. These are animated illustrations, not biological motion reconstruction or legal tender.
