@@ -60,6 +60,65 @@
       ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI * 2); ctx.fill();
 
     }
+    ctx.save(); ctx.globalAlpha = .36;
+    // Project a logarithmic spiral disk onto an oblique galactic plane.
+    const cx = width * .73, cy = height * .40;
+    const scale = Math.max(width * .61, height * .64);
+    const tilt = -.39, flatten = .32;
+    const project = (r, angle) => {
+      const x = Math.cos(angle) * r * scale, y = Math.sin(angle) * r * scale * flatten;
+      return { x: cx + x * Math.cos(tilt) - y * Math.sin(tilt), y: cy + x * Math.sin(tilt) + y * Math.cos(tilt) };
+    };
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(tilt); ctx.scale(1, flatten);
+    glow(0, 0, scale * 1.14, '75,105,174', .25);
+    glow(0, 0, scale * .53, '130,145,184', .27);
+    ctx.restore();
+    ctx.globalCompositeOperation = 'screen';
+    // Uneven gas clouds establish the arms, with cool ionized edges.
+    for (let i = 0; i < 720; i++) {
+      const r = .07 + Math.pow(random(), .67) * 1.1;
+      const arm = Math.floor(random() * 3);
+      const angle = r * 5.2 + arm * Math.PI * 2 / 3 + (random() - .5) * .48;
+      const p = project(r, angle);
+      const color = i % 5 === 0 ? '113,64,135' : i % 3 === 0 ? '86,143,193' : '118,134,174';
+      glow(p.x, p.y, scale * (.012 + random() * .035), color, .015 + (1 - Math.min(r, 1)) * .025);
+    }
+    // Thousands of tiny grains create photographic texture rather than a smooth gradient.
+    for (let i = 0; i < 57000; i++) {
+      const r = Math.pow(random(), .70) * 1.13;
+      const arm = Math.floor(random() * 3);
+      const spread = (random() + random() + random() - 1.5) * (.13 + r * .25);
+      const angle = r * 5.2 + arm * Math.PI * 2 / 3 + spread;
+      const p = project(r, angle);
+      const fade = Math.pow(Math.max(0, 1 - r / 1.16), .6);
+      const alpha = (.025 + random() * .17) * fade;
+      const warm = r < .19 && random() > .35;
+      ctx.fillStyle = `rgba(${warm ? '238,218,193' : i % 7 === 0 ? '165,135,200' : '176,207,242'},${alpha})`;
+      const size = .25 + random() * .95;
+      ctx.fillRect(p.x, p.y, size, size);
+    }
+    // Branching dark dust ribbons carve organic gaps through the luminous disk.
+    ctx.globalCompositeOperation = 'source-over';
+    for (let arm = 0; arm < 3; arm++) {
+      for (let branch = 0; branch < 3; branch++) {
+        ctx.beginPath();
+        for (let j = 0; j < 120; j++) {
+          const r = .13 + j / 120 * .91;
+          const angle = r * 5.2 + arm * Math.PI * 2 / 3 + .12 + branch * .055 + Math.sin(r * 24 + branch) * .015;
+          const p = project(r, angle);
+          if (!j) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+        }
+        ctx.strokeStyle = `rgba(3,7,20,${.12 - branch * .025})`;
+        ctx.lineWidth = scale * (.003 + branch * .002); ctx.stroke();
+      }
+    }
+    ctx.globalCompositeOperation = 'screen';
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(tilt); ctx.scale(1, .56);
+    glow(0, 0, scale * .27, '142,167,206', .35);
+    glow(0, 0, scale * .115, '231,216,192', .50);
+    glow(0, 0, scale * .048, '255,242,217', .72);
+    ctx.restore();
+    ctx.restore();
     // Bright foreground stars belong to the animation layer, not the static picture.
     for (let i = 0; i < (width < 600 ? 16 : 32); i++) {
       stars.push({ x: random() * width, y: random() * height, size: 1.2 + random() * .9,
@@ -125,7 +184,6 @@
       wire.fillStyle = `rgba(236,246,255,${fade})`;
       wire.beginPath(); wire.arc(x, y, 2, 0, Math.PI * 2); wire.fill();
     }
-    window.portfolioAscii?.draw(wire, width, height, time / 1000, { background: true });
     drawLens();
     const radius = width < 600 ? 105 : 150;
     for (const p of nodes) {
