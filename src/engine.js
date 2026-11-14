@@ -7,7 +7,7 @@
     if (!canvas || !stage) return;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-    const state = { ready: false, available: false, exploded: true, selectedLayer: -1, motion: !reduced.matches, zoom: 1, renderer: 'static' };
+    const state = { ready: false, available: false, exploded: true, selectedLayer: -1, motion: true, zoom: 1, renderer: 'static' };
     let gl, ctx2d, softwareCanvas, lastSoftwareDraw = -Infinity, program, shadowProgram, mesh, shadowBuffer, disposed = false, lost = false;
     let raf = 0, visible = true, width = 1, height = 1, last = 0, phase = 0;
     let yaw = -.56, pitch = .46, separation = 1, targetSeparation = 1;
@@ -85,7 +85,7 @@
         program=link(vertexSource,precision&&precision.precision?fragmentSource:fragmentSource.replace('precision highp float','precision mediump float'));
         shadowProgram=link(`attribute vec2 aPosition;varying vec2 vUV;void main(){vUV=aPosition;gl_Position=vec4(aPosition,0.,1.);}`,`precision mediump float;varying vec2 vUV;uniform float uAspect;uniform float uZoom;void main(){vec2 p=(vUV-vec2(0.,-.73*uZoom))*vec2(1.,4.4);float d=dot(p,p);float a=exp(-d*8./(uZoom*uZoom))*.16;gl_FragColor=vec4(.27,.28,.41,a);}`);
         shadowBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,shadowBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
-        mesh=makeMesh();if(softwareCanvas){softwareCanvas.remove();softwareCanvas=null;}state.renderer='webgl';lost=false;state.available=true;state.ready=false;if(reduced.matches)state.motion=false;resize();request();
+        mesh=makeMesh();if(softwareCanvas){softwareCanvas.remove();softwareCanvas=null;}state.renderer='webgl';lost=false;state.available=true;state.ready=false;resize();request();
       } catch(error) { console.warn('Portfolio WebGL fallback:', error.message);initializeSoftware(); }
     }
     function initializeSoftware() {
@@ -100,7 +100,7 @@
       try { ctx2d=(softwareCanvas||canvas).getContext('2d',{alpha:true}); } catch (_) { ctx2d=null; }
       if(!ctx2d){if(softwareCanvas){softwareCanvas.remove();softwareCanvas=null;}state.available=false;state.ready=false;state.renderer='static';stage.classList.remove('is-live');emit('WebGL is unavailable and software drawing is unsupported. The rendered preview remains available.');return;}
       gl=null;mesh=makeMesh(true);lost=false;state.renderer='canvas2d';state.available=true;state.ready=false;
-      if(reduced.matches)state.motion=false;lastSoftwareDraw=-Infinity;resize();request();
+      lastSoftwareDraw=-Infinity;resize();request();
     }
     function renderSoftware() {
       const c=ctx2d,surface=softwareCanvas||canvas,w=surface.width,h=surface.height;
@@ -208,7 +208,7 @@
       setMotion(value){const next=!!value;if(next===state.motion)return;state.motion=next;emit();request();},
       rotate(dx,dy){if(!Number.isFinite(dx)||!Number.isFinite(dy))return;yaw+=dx;pitch=clamp(pitch+dy,.12,1.05);request();},
       zoom(delta){if(!Number.isFinite(delta))return;const next=clamp(state.zoom+delta,.75,1.25);if(next===state.zoom)return;state.zoom=next;emit();request();},
-      reset(){yaw=-.56;pitch=.46;phase=0;state.zoom=1;state.selectedLayer=-1;state.exploded=true;targetSeparation=1;state.motion=!reduced.matches;if(reduced.matches)separation=1;emit();request();},
+      reset(){yaw=-.56;pitch=.46;phase=0;state.zoom=1;state.selectedLayer=-1;state.exploded=true;targetSeparation=1;state.motion=true;if(reduced.matches)separation=1;emit();request();},
       getState(){return {...state};},
       dispose(){if(disposed)return;disposed=true;if(softwareCanvas){softwareCanvas.remove();softwareCanvas=null;}cancelAnimationFrame(raf);removers.forEach(fn=>fn());observer?.disconnect();resizer?.disconnect();interactionObserver?.disconnect();if(gl&&!lost){if(mesh)for(const name of ['position','normal','index'])gl.deleteBuffer(mesh[name]);gl.deleteBuffer(shadowBuffer);gl.deleteProgram(program);gl.deleteProgram(shadowProgram);}state.available=false;state.ready=false;state.renderer='static';stage.classList.remove('is-live');emit('disposed');}
     };
@@ -241,7 +241,7 @@
     on(canvas,'webglcontextlost',e=>{if(state.renderer!=='webgl')return;e.preventDefault();lost=true;cancelAnimationFrame(raf);raf=0;state.available=false;state.ready=false;state.renderer='static';stage.classList.remove('is-live');emit('Graphics context paused. Preview shown.');});
     on(canvas,'webglcontextrestored',()=>{if(!disposed)initialize();});
     on(document,'visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0;}else{last=performance.now();request();}});
-    on(reduced,'change',()=>{if(reduced.matches){state.motion=false;separation=targetSeparation;emit();request();}});
+    on(reduced,'change',()=>{separation=targetSeparation;emit();request();});
     const observer=typeof IntersectionObserver!=='undefined'?new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible){last=performance.now();request();}else{cancelAnimationFrame(raf);raf=0;}},{rootMargin:'80px'}):null;
     observer?.observe(stage);
     const resizer=typeof ResizeObserver!=='undefined'?new ResizeObserver(resize):null;resizer?.observe(canvas);on(window,'resize',resize,{passive:true});

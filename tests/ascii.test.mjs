@@ -22,13 +22,13 @@ function galleryScene({reduced=false}={}){
  vm.runInNewContext(readFileSync('src/art-gallery.js','utf8'),globals);
  return {elements,frames,document,documentEvents,observers,preference,draws:()=>draws,tick(t){const item=frames.entries().next().value;if(item){frames.delete(item[0]);item[1](t);}}};
 }
-test('hero and gallery animate only when visible and pause respects user choice',()=>{
- const s=galleryScene();assert.equal(s.frames.size,0);s.observers[1]([{isIntersecting:true}]);assert.equal(s.frames.size,1);s.tick(1000);const count=s.draws();s.tick(1050);assert.ok(s.draws()>count);
- s.elements.get('.art-motion').events.click();assert.equal(s.frames.size,0);assert.equal(s.elements.get('.art-motion').textContent,'Animate artwork');
- s.preference.matches=true;s.preference.change();assert.equal(s.frames.size,0);
- s.elements.get('.art-motion').events.click();assert.equal(s.frames.size,1);s.document.hidden=true;s.documentEvents.visibilitychange();assert.equal(s.frames.size,0);s.document.hidden=false;s.documentEvents.visibilitychange();assert.equal(s.frames.size,1);
- s.observers[1]([{isIntersecting:false}]);assert.equal(s.frames.size,0);
+test('art loops automatically, suspends hidden work and has no opt-in control',()=>{
+ const s=galleryScene({reduced:true});assert.equal(s.frames.size,0);s.observers[1]([{isIntersecting:true}]);assert.equal(s.frames.size,1);s.tick(1000);const count=s.draws();s.tick(1050);assert.ok(s.draws()>count);
+ s.document.hidden=true;s.documentEvents.visibilitychange();assert.equal(s.frames.size,0);s.document.hidden=false;s.documentEvents.visibilitychange();assert.equal(s.frames.size,1);s.observers[1]([{isIntersecting:false}]);assert.equal(s.frames.size,0);
+ assert.doesNotMatch(readFileSync('src/art-gallery.js','utf8'),/class="art-motion"/);
 });
-test('reduced motion defaults to still art and gallery selection works without animation',()=>{
- const s=galleryScene({reduced:true});s.observers[0]([{isIntersecting:true}]);assert.equal(s.frames.size,0);const options=s.elements.get('.art-options').children;options[1].events.click();assert.equal(options[1].attributes['aria-pressed'],'true');assert.match(s.elements.get('.art-description').textContent,/flower/);s.document.documentElement.lang='es';options[2].events.click();assert.equal(options[2].textContent,'Ondas de señal');assert.equal(s.frames.size,0);
+test('gallery selection and translation work during automatic loops',()=>{
+ const s=galleryScene({reduced:true});s.observers[0]([{isIntersecting:true}]);assert.equal(s.frames.size,1);const options=s.elements.get('.art-options').children;options[1].events.click();assert.equal(options[1].attributes['aria-pressed'],'true');assert.match(s.elements.get('.art-description').textContent,/flower/);s.document.documentElement.lang='es';options[2].events.click();assert.equal(options[2].textContent,'Ondas de señal');assert.equal(s.frames.size,1);
 });
+
+test('published UI contains no animation opt-in buttons and keeps interaction controls',()=>{const html=readFileSync('src/index.html','utf8');assert.doesNotMatch(html,/id="core-motion"|data-city-action="motion"/);assert.match(html,/id="core-interact"/);assert.match(html,/data-city-action="interact"/);assert.doesNotMatch(readFileSync('src/showcase.js','utf8'),/class="showcase-pause"/);});

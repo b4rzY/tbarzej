@@ -29,7 +29,7 @@
   let width = 0, height = 0, dpr = 1, stars = [], nodes = [];
   let frame = 0, lastFrame = 0, resizeTimer = 0, destroyed = false, motionTime = 0;
   let scrollEnergy = 0, lastScrollY = window.scrollY || 0;
-  let enabled = !reduced.matches, explicitMotion = false;
+  let enabled = true, explicitMotion = false;
   const pointer = { x: 0, y: 0, targetX: 0, targetY: 0, strength: 0, targetStrength: 0 };
   const getState = () => ({ motion: enabled, enabled, reducedMotion: reduced.matches, coarsePointer: coarse.matches, paused: document.hidden || !enabled, destroyed });
   function announce() { window.dispatchEvent(new CustomEvent('cosmosstatechange', { detail: getState() })); }
@@ -274,7 +274,7 @@
     if (!enabled) { cancelAnimationFrame(frame); frame = 0; lastFrame = 0; pointer.strength = 0; pointer.targetStrength = 0; drawMesh(0); } else start();
     announce(); return getState();
   }
-  function onPreference() { if (!explicitMotion) { enabled = !reduced.matches; if (!enabled) { cancelAnimationFrame(frame); frame = 0; drawMesh(0); } else start(); } announce(); }
+  function onPreference() { if (!explicitMotion) { enabled = true; if (!enabled) { cancelAnimationFrame(frame); frame = 0; drawMesh(0); } else start(); } announce(); }
   function onVisibility() { if (document.hidden) { cancelAnimationFrame(frame); frame = 0; } else start(); announce(); }
   function destroy() {
     destroyed = true; cancelAnimationFrame(frame); clearTimeout(resizeTimer);

@@ -81,13 +81,13 @@ test('context loss presents fallback; successful restored draw clears reason', (
   assert.ok(f.classes.has('is-live')); f.api.dispose();
 });
 
-test('reduced motion starts paused, snaps transitions, permits explicit play, restores paused', () => {
+test('automatic loops survive reduced-motion preference and context restoration', () => {
   const f = fixture({ reducedMotion: true }); f.frame();
-  assert.equal(f.api.getState().motion, false); assert.equal(f.frames.size, 0);
-  f.api.setExploded(false); f.frame(); assert.equal(f.frames.size, 0);
+  assert.equal(f.api.getState().motion, true); assert.equal(f.frames.size, 1);
+  f.api.setExploded(false); f.frame(); assert.equal(f.frames.size, 1);
   f.api.setMotion(true); f.frame(); assert.equal(f.api.getState().motion, true); assert.equal(f.frames.size, 1);
   f.fire('webglcontextlost'); f.fire('webglcontextrestored'); f.frame();
-  assert.equal(f.api.getState().motion, false); assert.equal(f.frames.size, 0); f.api.dispose();
+  assert.equal(f.api.getState().motion, true); assert.equal(f.frames.size, 1); f.api.dispose();
 });
 
 test('paused engine renders on demand without a permanent animation loop', () => {
@@ -119,7 +119,7 @@ test('Canvas2D fallback projects live 3D meshes and responds to orbit, zoom and 
   const initial=JSON.stringify(f.softwarePoints);f.softwarePoints.length=0;
   f.api.rotate(.5,.1);f.frame();f.frame();assert.notEqual(JSON.stringify(f.softwarePoints),initial);
   f.api.zoom(.15);f.api.selectLayer(2);f.frame();f.frame();assert.equal(f.api.getState().selectedLayer,2);
-  assert.equal(f.api.getState().zoom,1.15);assert.equal(f.frames.size,0);f.api.dispose();
+  assert.equal(f.api.getState().zoom,1.15);assert.equal(f.frames.size,1);f.api.dispose();
 });
 
 test('Canvas2D automatic draws are capped at 30 fps and stop when paused', () => {

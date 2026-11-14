@@ -62,3 +62,7 @@ Three original concept scenes explore an architectural corridor, a sculptural pr
 
 ## Original ASCII studies
 The character-field black hole, petal and wave studies are independently implemented mathematical artwork. JIN2 (@jin_22ee) provided visual inspiration only. The creator repository is https://github.com/JIN2-ASCII/-JIN2-ASCII. Its BLACK-HOLE license permits personal projects but requires written permission for commercial use. No source code or assets from that repository are incorporated. The original mathematical study here uses a separate implementation and is not presented as the creator’s artwork. Existing portfolio content, optical cursor, controls and project scenes are preserved. Character work is bounded, pauses in hidden tabs, follows reduced-motion preferences and supports explicit pause. The gallery suspends rendering offscreen.
+
+### Automatic visual loops
+
+At the owner’s explicit direction, visible canvas scenes loop on load, including when the OS requests reduced motion. Per-scene animation toggles are removed. Offscreen/hidden-tab work still suspends and rendering resolution remains bounded. This choice sacrifices reduced-motion and pause accessibility for these decorative scenes; do not claim WCAG motion compliance. 3D/touch interaction controls and audio controls remain separate and unchanged.

@@ -197,7 +197,7 @@ for(let i=0;i<agents.length;i++){ctx.globalAlpha=1;label(agents[i],i);}ctx.globa
  let last=0,lastPaint=0,animation=0,visible=true,dirty=true,disposed=false;
  const panel=viewport.closest('[data-workflow-city]'),page=typeof document==='object'?document:null;
  const frameInterval=1000/30;
- const canAnimate=()=>!panel?.classList.contains('motion-paused')&&(!reduced||panel?.classList.contains('motion-enabled'));
+ const canAnimate=()=>!panel?.classList.contains('motion-paused');
  const motionStatus=panel?.querySelector?.('[data-city-status]');
  function updateMotionStatus(){if(motionStatus)motionStatus.textContent=canAnimate()?'Simulation running':reduced&&!panel?.classList.contains('motion-enabled')?'Paused · Reduce Motion':'Simulation paused';}
  const onScreen=()=>visible&&!page?.hidden;
@@ -226,7 +226,7 @@ function initWorkflowCity(root){
  const viewport=root.querySelector('[data-city-viewport]');if(!viewport)return null;
  let language=root.dataset.language==='es'?'es':'en',interactive=false,selected='plan',disposed=false;
  const media=window.matchMedia('(prefers-reduced-motion: reduce)');
- let playing=!media.matches,camera={scale:1,x:0,y:0,yaw:0},drag=null,suppressClick=false,dragDistance=0;
+ let playing=true,camera={scale:1,x:0,y:0,yaw:0},drag=null,suppressClick=false,dragDistance=0;
  const pointers=new Map(),listeners=[];
  const on=(element,event,handler,options)=>{element.addEventListener(event,handler,options);listeners.push(()=>element.removeEventListener(event,handler,options));};
  viewport.innerHTML='<canvas class="city-canvas" aria-hidden="true"></canvas>'+workflowRoles.map(a=>`<button type="button" class="city-building" data-map-landmark="${a.id}" aria-pressed="${a.id===selected}"><span class="scene-accessible-label">${a.en}</span></button>`).join('');
@@ -269,7 +269,7 @@ function initWorkflowCity(root){
  const release=event=>{pointers.delete(event.pointerId);const remaining=[...pointers.values()][0];drag=remaining?{...remaining,distance:0}:null;};
  on(viewport,'pointerup',release);on(viewport,'pointercancel',release);on(viewport,'lostpointercapture',release);
  on(viewport,'keydown',event=>{if(event.key==='Escape'){setInteractive(false);root.querySelector('[data-city-action="interact"]')?.focus();return;}if(event.target!==viewport)return;if(event.shiftKey&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)){event.preventDefault();if(event.key==='ArrowLeft')camera.x-=24;if(event.key==='ArrowRight')camera.x+=24;if(event.key==='ArrowUp')camera.y-=24;if(event.key==='ArrowDown')camera.y+=24;updateCamera();return;}const actions={ArrowLeft:'rotate-left',ArrowRight:'rotate-right','+':'zoom-in','=':'zoom-in','-':'zoom-out',Home:'reset'};if(actions[event.key]){event.preventDefault();act(actions[event.key]);}});
- on(media,'change',()=>{playing=!media.matches;root.classList.toggle('motion-paused',!playing);root.classList.remove('motion-enabled');renderUI();});
+ on(media,'change',()=>{playing=true;root.classList.toggle('motion-paused',!playing);root.classList.remove('motion-enabled');renderUI();});
  // Renderer owns drawing; controller owns translated status and explicit user controls.
  const status=root.querySelector('[data-city-status]');const statusObserver=status?new MutationObserver(()=>{const text=playing?labels[language].running:media.matches?labels[language].reduced:labels[language].paused;if(status.textContent!==text)status.textContent=text;}):null;
  statusObserver?.observe(status,{childList:true});

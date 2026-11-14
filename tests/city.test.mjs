@@ -37,10 +37,8 @@ test('initializes actual canvas with DPR cap, moving traffic, and role buttons',
  const f=fixture();assert.ok(f.api);assert.equal(f.viewport.canvas.width,1800);assert.equal(f.viewport.canvas.height,1200);assert.equal(f.root.querySelectorAll('[data-city-role]').length,9);assert.equal(f.viewport.querySelectorAll('[data-map-landmark]').length,9);
  f.frame();f.frame();assert.ok(f.api.getState().time>0);assert.ok(f.frames.size);f.api.destroy();assert.equal(f.frames.size,0);assert.ok(f.observers.every(o=>o.disconnected));
 });
-test('reduced motion begins paused, explicit play advances, pause stops without reset',()=>{
- const f=fixture({reduced:true});assert.equal(f.api.getState().playing,false);assert.equal(f.frames.size,1);f.frame();assert.equal(f.frames.size,0);assert.equal(f.api.getState().time,0);
- f.click('motion');f.frame();f.frame();const time=f.api.getState().time;assert.ok(time>0);f.click('motion');f.frame();assert.equal(f.frames.size,0);assert.equal(f.api.getState().time,time);
- f.api.destroy();
+test('city loops automatically even with reduced-motion preference',()=>{
+ const f=fixture({reduced:true});assert.equal(f.api.getState().playing,true);f.frame();f.frame();assert.ok(f.api.getState().time>0);assert.equal(f.frames.size,1);f.api.destroy();
 });
 test('offscreen and document-hidden animations suspend and resume without time jump',()=>{
  const f=fixture();f.frame();f.frame();const start=f.api.getState().time;f.visible(false);assert.equal(f.frames.size,0);f.visible(true);f.frame();assert.equal(f.api.getState().time,start);
