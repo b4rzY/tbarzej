@@ -1,0 +1,1 @@
+Original QR object showcase for barzelatto.dev. Tree, restaurant, beauty and fitness concepts demonstrate business applications. Client-side destination input and real scannable QR export. No backend, analytics, camera access, purchases or external submissions. Existing portfolio must stay unchanged outside added showcase link and new page. Prototype only pending review.
