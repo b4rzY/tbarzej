@@ -12,7 +12,7 @@ function sample(x, y, time, mode = 'horizon') {
     const petal=Math.sin(r*30-a*4+.8*Math.sin(a*5+r*9)+time*.17);
     const folds=Math.pow(Math.max(0,petal),3);
     const light=.5+.5*Math.cos(a-1.1);
-    return clamp((.18+folds*.82)*Math.pow(1-r/(boundary+.04),.22)*(.6+light*.4)+Math.exp(-r*r/0.009)*.6);
+    return Math.sqrt(clamp((.18+folds*.82)*Math.pow(1-r/(boundary+.04),.22)*(.6+light*.4)+Math.exp(-r*r/0.009)*.6));
   }
   if (mode === 'dollar') {
     // Fictional banknote geometry, not a scan or reproduction of currency.
@@ -57,7 +57,7 @@ function draw(ctx, width, height, time=0, {mode='horizon', background=false, her
     const rows=typeof window!=='undefined'?window.zeusAscii:null;if(!rows)return;
     const cell=Math.min(width/126,height/132),ox=(width-cell*120)/2,oy=(height-cell*124)/2;
     ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`${Math.ceil(cell*1.2)}px monospace`;
-    rows.forEach((row,y)=>{for(let x=0;x<120;x++){const rgb=row.slice(x*3,x*3+3);if(rgb==='---')continue;const r=parseInt(rgb[0],16)*17,g=parseInt(rgb[1],16)*17,b=parseInt(rgb[2],16)*17;const light=(r*.2126+g*.7152+b*.0722)/255;ctx.fillStyle=`rgb(${Math.min(255,r*1.4+22)},${Math.min(255,g*1.4+18)},${Math.min(255,b*1.4+15)})`;ctx.globalAlpha=.8+.2*Math.sin(time*.8+y*.05+x*.03)**2;ctx.fillText(' .,:;=+itnoxOQMW@'[Math.max(2,Math.min(15,Math.floor(light*15)))],ox+x*cell,oy+y*cell);}});ctx.restore();return;
+    rows.forEach((row,y)=>{for(let x=0;x<120;x++){const rgb=row.slice(x*3,x*3+3);if(rgb==='---')continue;const r=parseInt(rgb[0],16)*17,g=parseInt(rgb[1],16)*17,b=parseInt(rgb[2],16)*17;const light=(r*.2126+g*.7152+b*.0722)/255;ctx.fillStyle=`rgb(${Math.min(255,r*1.8+35)},${Math.min(255,g*1.8+30)},${Math.min(255,b*1.8+25)})`;ctx.globalAlpha=.8+.2*Math.sin(time*.8+y*.05+x*.03)**2;ctx.fillText(' .,:;=+itnoxOQMW@'[Math.max(4,Math.min(15,Math.floor(Math.sqrt(light)*15)))],ox+x*cell,oy+y*cell);}});ctx.restore();return;
   }
   const step = Math.max(3.5, width / (background ? 240 : 210));
   const small=width<760;
