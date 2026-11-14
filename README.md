@@ -58,3 +58,7 @@ The gravity cursor now applies a bounded SVG displacement field to actual page t
 
 Three original concept scenes explore an architectural corridor, a sculptural product and a live venue. These are procedural illustrative website directions, not photorealistic filmed environments or client commissions. They offer pointer/touch perspective, scroll travel, keyboard depth control, bilingual copy, pause and offscreen suspension. The two supplied reference videos informed spatial depth and editorial composition; their footage is not redistributed.
 
+
+
+## Original ASCII studies
+The character-field black hole, petal and wave studies are independently implemented mathematical artwork. JIN2 (@jin_22ee) provided visual inspiration only. The Instagram reference distributes source links by DM; no repository or reuse license was verified, and none of its code or paid artwork is included. Existing portfolio content, optical cursor, controls and project scenes are preserved. Character work is bounded, pauses in hidden tabs, follows reduced-motion preferences and supports explicit pause. The gallery suspends rendering offscreen.

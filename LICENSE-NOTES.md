@@ -13,3 +13,7 @@ The workflow city is adapted from the owner's existing Dots City renderer for th
 The Ñami image is a screenshot of the owner's public web app, used to demonstrate the project. Depicted application branding and imagery retain their respective rights.
 
 Space Grotesk variable font is self-hosted from the Google Fonts distribution (Florian Karsten), under the SIL Open Font License 1.1. The license is included at `src/assets/NOTICE-SPACE-GROTESK.txt`.
+
+
+## Original ASCII studies
+The character-field black hole, petal and wave studies are independently implemented mathematical artwork. JIN2 (@jin_22ee) provided visual inspiration only. The Instagram reference distributes source links by DM; no repository or reuse license was verified, and none of its code or paid artwork is included. Existing portfolio content, optical cursor, controls and project scenes are preserved. Character work is bounded, pauses in hidden tabs, follows reduced-motion preferences and supports explicit pause. The gallery suspends rendering offscreen.
