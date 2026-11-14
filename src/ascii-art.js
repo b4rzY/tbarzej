@@ -64,17 +64,17 @@ function drawIllustration(ctx,width,height,time,mode){
     rows.forEach((row,y)=>{for(let x=0;x<cols;x++){const rgb=row.slice(x*3,x*3+3);if(rgb==='---')continue;
       const color=[0,1,2].map(i=>parseInt(rgb[i],16)*17);const light=(color[0]*.21+color[1]*.72+color[2]*.07)/255;
       // A dense, stable letter lattice retains the reference's recognizable details.
-      paint.fillStyle=mode==='zeus'?`rgb(${color.map(v=>Math.min(255,Math.round(v*1.5+40))).join(',')})`:'#'+rgb;
+      paint.fillStyle=mode==='zeus'?`rgb(${color.map(v=>Math.min(255,Math.round(v*1.6+12))).join(',')})`:'#'+rgb;
       paint.fillText('MW@#8%&'[Math.floor((x*7+y*11+light*5)%7)],x*cell+cell/2,y*cell+cell/2);
     }});atlas=canvas;illustrationCache.set(mode,atlas);
   }
   const fit=Math.min(width*(mode==='dollar'?.91:.90)/atlas.width,height*.86/atlas.height);
   const w=atlas.width*fit,h=atlas.height*fit;
-  const breath=mode==='zeus'?1+.04*Math.sin(time*1.65):mode==='rose'?1+.012*Math.sin(time):1;
-  ctx.save();ctx.translate(width/2,height/2+Math.sin(time*1.2)*(mode==='zeus'?height*.025:height*.008));
-  ctx.rotate(Math.sin(time*.8)*(mode==='dollar'?.018:mode==='zeus'?.06:.045));ctx.scale(breath,breath);
+  const breath=mode==='zeus'?1+.025*Math.sin(time*1.65):mode==='rose'?1+.012*Math.sin(time):1;
+  ctx.save();ctx.translate(width/2+(mode==='zeus'?Math.sin(time*.8)*width*.012:0),height/2+Math.sin(time*1.2)*(mode==='zeus'?height*.025:height*.008));
+  ctx.rotate(Math.sin(time*.8)*(mode==='dollar'?.018:mode==='zeus'?.035:.045));ctx.scale(breath,breath);
   // Cached letter atlas, animated in strips: no per-frame photo decoding or thousands of text draws.
-  const strips=mode==='dollar'?10:mode==='zeus'?12:1;
+  const strips=mode==='dollar'?10:1;
   for(let i=0;i<strips;i++){
     const sy=i*atlas.height/strips,sh=atlas.height/strips;
     const shift=mode==='dollar'?Math.sin(time*1.7+i*.17)*w*.012:mode==='zeus'?Math.sin(time*1.65+i*.11)*w*.013*(1-i/strips):0;
