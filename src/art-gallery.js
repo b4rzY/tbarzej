@@ -11,7 +11,7 @@ const modes=['horizon','bloom','wave'];
 function renderText(){const t=text[document.documentElement.lang==='es'?'es':'en'];root.querySelector('h2').textContent=t.title;root.querySelector('.art-heading p').textContent=t.intro;root.querySelector('.art-controls').setAttribute('aria-label',document.documentElement.lang==='es'?'Controles de arte':'Artwork controls');root.querySelector('.art-description').textContent=t.copy[mode];root.querySelector('.art-credit').textContent=t.note;root.querySelectorAll('[data-art-mode]').forEach((b,i)=>{b.textContent=t.names[i];b.setAttribute('aria-pressed',String(i===mode));});}
 for(let i=0;i<3;i++){const button=document.createElement('button');button.type='button';button.dataset.artMode=String(i);button.addEventListener('click',()=>{mode=i;renderText();draw();});root.querySelector('.art-options').append(button);}
 function draw(){ctx.fillStyle='#05070b';ctx.fillRect(0,0,w,h);window.portfolioAscii.draw(ctx,w,h,time,{mode:modes[mode]});}
-function drawHero(){if(!heroCtx)return;heroCtx.clearRect(0,0,hw,hh);window.portfolioAscii.draw(heroCtx,hw,hh,time,{mode:'horizon'});}
+function drawHero(){if(!heroCtx)return;heroCtx.clearRect(0,0,hw,hh);window.portfolioAscii.draw(heroCtx,hw,hh,time,{mode:'horizon',hero:true});}
 function tick(now){frame=0;if(!motion||(!visible&&!heroVisible)||document.hidden)return;if(now-last>=1000/24){time+=last?Math.min(now-last,80)/1000:0;last=now;if(visible)draw();if(heroVisible)drawHero();}frame=requestAnimationFrame(tick);}
 function stop(){cancelAnimationFrame(frame);frame=0;last=0;}
 function start(){if(!frame&&motion&&(visible||heroVisible)&&!document.hidden)frame=requestAnimationFrame(tick);}

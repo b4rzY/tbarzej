@@ -29,11 +29,11 @@ function sample(x, y, time, mode = 'horizon') {
   return clamp(disk*1.25 + rim*.8 + arch*.95);
 }
 
-function draw(ctx, width, height, time=0, {mode='horizon', background=false}={}) {
+function draw(ctx, width, height, time=0, {mode='horizon', background=false, hero=false}={}) {
   const step = Math.max(3.5, width / (background ? 240 : 210));
   const small=width<760;
   const cx=width*(background?(small?.5:.74):.5), cy=height*(background?(small?.57:.38):.50);
-  const scale=background?Math.min(width*(small?.33:.18),height*.48):Math.min(width*(mode==='bloom'?.62:.31),height*(mode==='bloom'?.66:.70));
+  const scale=background?Math.min(width*(small?.33:.18),height*.48):Math.min(width*(mode==='bloom'?.62:hero?.35:.31),height*(mode==='bloom'?.66:.70));
   ctx.save();
   const inheritedAlpha=ctx.globalAlpha;
   if(mode==='horizon'){

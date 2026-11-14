@@ -2,4 +2,6 @@
 
 .intro-main{position:relative}.hero-ascii{position:absolute;left:48%;right:-3%;top:70px;height:470px;pointer-events:none}.hero-ascii canvas{width:100%;height:100%;display:block}.cosmos-caption{top:570px}@media(max-width:760px){.hero-ascii{position:relative;left:auto;right:auto;top:auto;width:calc(100% + 40px);margin:18px -20px 20px;height:230px}.cosmos-caption{position:static}.intro-copy{margin-top:16px}}
 
-@media(min-width:761px){.hero-words{position:static}.hero-ascii{left:48%;right:1%;top:70px;z-index:1}}
+@media(min-width:761px){.hero-words{position:static}.hero-ascii{left:40%;right:0;top:30px;height:560px;z-index:1}}
+
+@media(max-width:760px){.hero-ascii{height:270px;margin-top:4px;margin-bottom:12px}}
