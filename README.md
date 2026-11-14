@@ -66,3 +66,7 @@ The character-field black hole, petal and wave studies are independently impleme
 ### Automatic visual loops
 
 At the owner’s explicit direction, visible canvas scenes loop on load, including when the OS requests reduced motion. Per-scene animation toggles are removed. Offscreen/hidden-tab work still suspends and rendering resolution remains bounded. This choice sacrifices reduced-motion and pause accessibility for these decorative scenes; do not claim WCAG motion compliance. 3D/touch interaction controls and audio controls remain separate and unchanged.
+
+### Recognizable character studies
+
+Rose and the fictional dollar note are independently drawn vector designs (editable SVGs in assets), sampled into character-color atlases. Zeus uses the owner-confirmed photo, with a tighter silhouette mask. Cached letter atlases avoid thousands of per-frame text calls; visible movement uses bounded strip deformation, breathing and sway at the existing 24fps art budget. These are animated illustrations, not biological motion reconstruction or legal tender.
